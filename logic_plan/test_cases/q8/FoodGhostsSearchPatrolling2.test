@@ -1,0 +1,11 @@
+class: "FoodGhostsProblemTest"
+
+layoutName: "patrolling2"
+layout: """
+%%%%%
+%  .%
+% G %
+%  P%
+%%%%%
+"""
+
