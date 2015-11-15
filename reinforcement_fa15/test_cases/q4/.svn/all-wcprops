@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4
+END
+1-tinygrid.test
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/1-tinygrid.test
+END
+2-tinygrid-noisy.test
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/2-tinygrid-noisy.test
+END
+CONFIG
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/CONFIG
+END
+3-bridge.solution
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/3-bridge.solution
+END
+3-bridge.test
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/3-bridge.test
+END
+4-discountgrid.solution
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/4-discountgrid.solution
+END
+4-discountgrid.test
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/4-discountgrid.test
+END
+1-tinygrid.solution
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/1-tinygrid.solution
+END
+2-tinygrid-noisy.solution
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/pacmanprojects_main/!svn/ver/4774/trunk/src/projects/reinforcement_fa15/test_cases/q4/2-tinygrid-noisy.solution
+END
