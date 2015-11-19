@@ -1,0 +1,37 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+partialPoints: "1"
+
+# Python code for the test below.
+preamble: """
+import numpy as np
+import linearLearning
+
+regression = linearLearning.LinearRegression()
+regression.weights[0] = 1
+regression.weights[1] = 1
+x = np.array([1, 2])
+y = 3
+ans1 = regression.loss(x, y)
+
+regression.weights[0] = 2
+regression.weights[1] = 2
+x = np.array([1.7, 2.1])
+y = 5
+ans2 = regression.loss(x, y)
+
+regression.weights[0] = 1.84
+regression.weights[1] = 0.92
+x = np.array([4.83, 1])
+y = 10
+ans3 = regression.loss(x, y)
+
+ans = sum([ans1, ans2, ans3])
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+

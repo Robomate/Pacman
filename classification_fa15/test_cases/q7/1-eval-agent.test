@@ -1,0 +1,20 @@
+class: "EvalAgentTest"
+
+agentName: "ApproximateQAgent"
+agentArgs: "extractor=EnhancedExtractor,numTraining=200"
+layoutName: "powerClassic"
+maxTime: "20"
+numTraining: "200"
+numGames: "210"
+
+#nonTimeoutMinimum: "0"
+#nonTimeoutThresholds: "5"
+
+scoreThresholds: "500 1000 1200"
+
+#winsThresholds: "3 5"
+
+randomSeed: "10"
+ghosts: "[RandomGhost(1), RandomGhost(2), RandomGhost(3), RandomGhost(4)]"
+
+

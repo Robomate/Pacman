@@ -1,0 +1,638 @@
+<html>
+  <head>
+  <title>pacmanPlot.py</title>
+  </head>
+  <body>
+  <h3>pacmanPlot.py (<a href="../pacmanPlot.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># pacmanPlot.py
+# -------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+</span><span style="color: blue; font-weight: bold">from </span>graphicsDisplay <span style="color: blue; font-weight: bold">import </span>PacmanGraphics
+<span style="color: blue; font-weight: bold">from </span>graphicsDisplay <span style="color: blue; font-weight: bold">import </span>InfoPane
+<span style="color: blue; font-weight: bold">import </span>graphicsDisplay
+<span style="color: blue; font-weight: bold">import </span>graphicsUtils
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>GameStateData
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>AgentState
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Configuration
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Directions
+<span style="color: blue; font-weight: bold">from </span>layout <span style="color: blue; font-weight: bold">import </span>Layout
+<span style="color: blue; font-weight: bold">from </span>Tkinter <span style="color: blue; font-weight: bold">import </span>mainloop
+<span style="color: blue; font-weight: bold">import </span>math
+<span style="color: blue; font-weight: bold">import </span>numpy as np
+<span style="color: blue; font-weight: bold">import </span>time
+<span style="color: blue; font-weight: bold">import </span>plotUtil
+
+LINE_COLOR <span style="font-weight: bold">= </span>graphicsUtils<span style="font-weight: bold">.</span>formatColor<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">, </span><span style="color: red">0</span><span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">def </span>plotPoints<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Create a Pacman display, plotting the points (x[i],y[i]) for all i in len(x).
+    This method will block control and hand it to the displayed window.
+           
+    x: array or list of N scalar values.
+    y: array or list of N scalar values.
+    
+    &gt;&gt;&gt; x = range(-3,4)
+    &gt;&gt;&gt; squared = lambda x : x**2
+    &gt;&gt;&gt; y = map(squared, x)
+    &gt;&gt;&gt; pacmanPlot.plotPoints(x,y)
+   """
+    </span>display <span style="font-weight: bold">= </span>PacmanPlot<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">)
+    </span>display<span style="font-weight: bold">.</span>takeControl<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>PacmanPlot<span style="font-weight: bold">(</span>PacmanGraphics<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>y<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>zoom<span style="font-weight: bold">=</span><span style="color: red">1.0</span><span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span><span style="color: red">0.0</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Create and dispaly a pacman plot figure.
+        
+        If both x and y are provided, plot the points (x[i],y[i]) for all i in len(x).
+        
+        This will draw on the existing pacman window (clearing it first) or create a new one if no window exists.
+        
+        x: array or list of N scalar values. Default=None, in which case no points will be plotted
+        y: array or list of N scalar values. Default=None, in which case no points will be plotted
+        """        
+        </span>super<span style="font-weight: bold">(</span>PacmanPlot<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">).</span>__init__<span style="font-weight: bold">(</span>zoom<span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>x <span style="color: blue; font-weight: bold">is </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">or </span>y <span style="color: blue; font-weight: bold">is </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>width <span style="font-weight: bold">= </span><span style="color: red">23
+            </span>height <span style="font-weight: bold">= </span><span style="color: red">23
+            </span>xmin <span style="font-weight: bold">= -(</span>width<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">)/</span><span style="color: red">2</span><span style="font-weight: bold">+</span><span style="color: red">1
+            </span>ymin <span style="font-weight: bold">= -(</span>height<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">)/</span><span style="color: red">2</span><span style="font-weight: bold">+</span><span style="color: red">1
+            
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initPlot<span style="font-weight: bold">(</span>xmin<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">, </span>width<span style="font-weight: bold">, </span>height<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>initPlot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>xmin<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">, </span>width<span style="font-weight: bold">, </span>height<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">if </span>graphicsUtils<span style="font-weight: bold">.</span>_canvas <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>graphicsUtils<span style="font-weight: bold">.</span>clear_screen<span style="font-weight: bold">()
+        
+        </span><span style="color: green; font-style: italic"># Initialize GameStateData with blank board with axes    
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width <span style="font-weight: bold">= </span>width
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>height <span style="font-weight: bold">= </span>height
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift <span style="font-weight: bold">= -(</span>xmin<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift <span style="font-weight: bold">= -(</span>ymin<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="font-weight: bold">= </span><span style="color: blue">None
+
+        self</span><span style="font-weight: bold">.</span>zoom <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span><span style="color: red">30.0</span><span style="font-weight: bold">/</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">, </span><span style="color: red">20.0</span><span style="font-weight: bold">/</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gridSize <span style="font-weight: bold">= </span>graphicsDisplay<span style="font-weight: bold">.</span>DEFAULT_GRID_SIZE <span style="font-weight: bold">* </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>zoom
+
+
+<span style="color: green; font-style: italic">#         fullRow = ['%']*self.width
+#         row = ((self.width-1)/2)*[' '] + ['%'] + ((self.width-1)/2)*[' ']
+#         boardText = ((self.height-1)/2)*[row] + [fullRow] + ((self.height-1)/2)*[row]
+
+        </span>numSpaces <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">-</span><span style="color: red">1
+        </span>numSpacesLeft <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift
+        numSpacesRight <span style="font-weight: bold">= </span>numSpaces<span style="font-weight: bold">-</span>numSpacesLeft
+
+        numRows <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height
+        numRowsBelow <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift
+        numRowsAbove <span style="font-weight: bold">= </span>numRows<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">-</span>numRowsBelow
+
+
+        fullRow <span style="font-weight: bold">= [</span><span style="color: red">'%'</span><span style="font-weight: bold">]*</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width
+        <span style="color: blue; font-weight: bold">if </span>numSpacesLeft <span style="font-weight: bold">&lt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span>row <span style="font-weight: bold">= [</span><span style="color: red">' '</span><span style="font-weight: bold">]*</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width
+        <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>row <span style="font-weight: bold">= </span>numSpacesLeft<span style="font-weight: bold">*[</span><span style="color: red">' '</span><span style="font-weight: bold">] + [</span><span style="color: red">'%'</span><span style="font-weight: bold">] + </span>numSpacesRight<span style="font-weight: bold">*[</span><span style="color: red">' '</span><span style="font-weight: bold">]
+        </span>boardText <span style="font-weight: bold">= </span>numRowsAbove<span style="font-weight: bold">*[</span>row<span style="font-weight: bold">] + [</span>fullRow<span style="font-weight: bold">] + </span>numRowsBelow<span style="font-weight: bold">*[</span>row<span style="font-weight: bold">]
+
+        </span>layout <span style="font-weight: bold">= </span>Layout<span style="font-weight: bold">(</span>boardText<span style="font-weight: bold">)
+    
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState <span style="font-weight: bold">= </span>GameStateData<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState<span style="font-weight: bold">.</span>initialize<span style="font-weight: bold">(</span>layout<span style="font-weight: bold">, </span><span style="color: red">0</span><span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initialize<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState<span style="font-weight: bold">)
+        </span>title <span style="font-weight: bold">= </span><span style="color: red">'Pacman Plot'
+        </span>graphicsUtils<span style="font-weight: bold">.</span>changeText<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane<span style="font-weight: bold">.</span>scoreText<span style="font-weight: bold">, </span>title<span style="font-weight: bold">)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+        
+    </span><span style="color: blue; font-weight: bold">def </span>plot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Pacman Plot'</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the input values x with their corresponding output values y (either true or predicted).
+        Also, plot the linear regression line if weights are given; assuming h_w(x) = weights[0]*x + weights[1].
+        
+        This will draw on the existing pacman window (clearing it first) or create a new one if no window exists.
+        
+        x: array or list of N scalar values.
+        y: array or list of N scalar values.
+        weights: array or list of 2 values (or if just one value, the bias weight is assumed to be zero). If None,
+            no line is drawn. Default: None
+        """
+        </span><span style="color: blue; font-weight: bold">if </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>x<span style="font-weight: bold">).</span>size <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">return
+        
+        if </span>isinstance<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">], </span>np<span style="font-weight: bold">.</span>ndarray<span style="font-weight: bold">):
+            </span><span style="color: green; font-style: italic"># Scrape the first element of each data point
+            </span>x <span style="font-weight: bold">= [</span>data<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>data <span style="color: blue; font-weight: bold">in </span>x<span style="font-weight: bold">]
+        
+        </span>xmin <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)))
+        </span>ymin <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>y<span style="font-weight: bold">)))
+        </span>xmax <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)))
+        </span>ymax <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>y<span style="font-weight: bold">)))
+        </span>width <span style="font-weight: bold">= </span>xmax<span style="font-weight: bold">-</span>xmin<span style="font-weight: bold">+</span><span style="color: red">3
+        </span>height <span style="font-weight: bold">= </span>ymax<span style="font-weight: bold">-</span>ymin<span style="font-weight: bold">+</span><span style="color: red">3
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initPlot<span style="font-weight: bold">(</span>xmin<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">, </span>width<span style="font-weight: bold">, </span>height<span style="font-weight: bold">)
+        
+        </span>gameState <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState<span style="font-weight: bold">.</span>deepCopy<span style="font-weight: bold">()
+                
+        </span>gameState<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">= []
+        
+        </span><span style="color: green; font-style: italic"># Add ghost at each point
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>px<span style="font-weight: bold">,</span>py<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">):
+            </span>point <span style="font-weight: bold">= (</span>px<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>py<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+            </span>gameState<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( </span>AgentState<span style="font-weight: bold">( </span>Configuration<span style="font-weight: bold">( </span>point<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">), </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">) )
+
+</span><span style="color: green; font-style: italic">#         self.initialize(gameState)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>clear_screen<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane <span style="font-weight: bold">= </span>InfoPane<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gridSize<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawStaticObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawAgentObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+
+        </span>graphicsUtils<span style="font-weight: bold">.</span>changeText<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane<span style="font-weight: bold">.</span>scoreText<span style="font-weight: bold">, </span>title<span style="font-weight: bold">)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+
+    
+    </span><span style="color: blue; font-weight: bold">def </span>setWeights<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">pass        
+        
+    def </span>takeControl<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Give full control to the window. Blocks current thread. Program will exit when window is closed.
+        """
+        </span>mainloop<span style="font-weight: bold">()
+
+</span><span style="color: green; font-style: italic">#     def animate():
+#         numSteps = width-2
+#         for i in range(numSteps):
+#             x = point1[0] + i*dx*1.0/numSteps
+#             y = point1[1] + i*dy*1.0/numSteps
+#             newPacman = AgentState( Configuration( (x,y), angle), True)
+#             display.animatePacman(newPacman, display.agentImages[0][0], display.agentImages[0][1])
+#             display.agentImages[0] = (newPacman, display.agentImages[0][1])
+#         newPacman = AgentState( Configuration( point2, angle), True)
+#         display.animatePacman(newPacman, display.agentImages[0][0], display.agentImages[0][1])
+#         display.agentImages[0] = (newPacman, display.agentImages[0][1])
+
+
+</span><span style="color: blue; font-weight: bold">class </span>PacmanPlotRegression<span style="font-weight: bold">(</span>PacmanPlot<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>zoom<span style="font-weight: bold">=</span><span style="color: red">1.0</span><span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span><span style="color: red">0.0</span><span style="font-weight: bold">):
+        </span>super<span style="font-weight: bold">(</span>PacmanPlotRegression<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">).</span>__init__<span style="font-weight: bold">(</span>zoom<span style="font-weight: bold">=</span>zoom<span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span>frameTime<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addPacmanToLineStart <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+        
+    def </span>plot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Linear Regression'</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the input values x with their corresponding output values y (either true or predicted).
+        Also, plot the linear regression line if weights are given; assuming h_w(x) = weights[0]*x + weights[1].
+        
+        This will draw on the existing pacman window (clearing it first) or create a new one if no window exists.
+        
+        x: array or list of N scalar values.
+        y: array or list of N scalar values.
+        weights: array or list of 2 values (or if just one value, the bias weight is assumed to be zero). If None,
+            no line is drawn. Default: None
+        """
+        </span><span style="color: blue; font-weight: bold">if </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>x<span style="font-weight: bold">).</span>size <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">return
+        
+        if </span>isinstance<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">], </span>np<span style="font-weight: bold">.</span>ndarray<span style="font-weight: bold">):
+            </span><span style="color: green; font-style: italic"># Scrape the first element of each data point
+            </span>x <span style="font-weight: bold">= [</span>data<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>data <span style="color: blue; font-weight: bold">in </span>x<span style="font-weight: bold">]
+        
+        </span>xmin <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)))
+        </span>ymin <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>y<span style="font-weight: bold">)))
+        </span>xmax <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)))
+        </span>ymax <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>y<span style="font-weight: bold">)))
+        </span>width <span style="font-weight: bold">= </span>xmax<span style="font-weight: bold">-</span>xmin<span style="font-weight: bold">+</span><span style="color: red">3
+        </span>height <span style="font-weight: bold">= </span>ymax<span style="font-weight: bold">-</span>ymin<span style="font-weight: bold">+</span><span style="color: red">3
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initPlot<span style="font-weight: bold">(</span>xmin<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">, </span>width<span style="font-weight: bold">, </span>height<span style="font-weight: bold">)
+        
+        </span>gameState <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState<span style="font-weight: bold">.</span>deepCopy<span style="font-weight: bold">()
+                
+        </span>gameState<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">= []
+        
+        </span><span style="color: green; font-style: italic"># Put pacman in bottom left
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addPacmanToLineStart <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+            </span>gameState<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( </span>AgentState<span style="font-weight: bold">( </span>Configuration<span style="font-weight: bold">( (</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">), </span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">) )
+            
+        </span><span style="color: green; font-style: italic"># Add ghost at each point
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>px<span style="font-weight: bold">,</span>py<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">):
+            </span>point <span style="font-weight: bold">= (</span>px<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>py<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+            </span>gameState<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( </span>AgentState<span style="font-weight: bold">( </span>Configuration<span style="font-weight: bold">( </span>point<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">), </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">) )
+
+</span><span style="color: green; font-style: italic">#         self.initialize(gameState)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>clear_screen<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane <span style="font-weight: bold">= </span>InfoPane<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gridSize<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawStaticObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawAgentObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+
+        </span>graphicsUtils<span style="font-weight: bold">.</span>changeText<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane<span style="font-weight: bold">.</span>scoreText<span style="font-weight: bold">, </span>title<span style="font-weight: bold">)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+        
+        </span><span style="color: blue; font-weight: bold">if </span>weights <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setWeights<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the linear regression line for given weights; assuming h_w(x) = weights[0]*x + weights[1].
+        
+        This will draw on the existing pacman window with the existing points
+        
+        weights: array or list of 2 values (or if just one value, the bias weight is assumed to be zero). If None,
+            no line is drawn. Default: None
+        """
+        </span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>size <span style="font-weight: bold">&gt;= </span><span style="color: red">2</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+            </span>b <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+            </span>b <span style="font-weight: bold">= </span><span style="color: red">0
+            
+</span><span style="color: green; font-style: italic">#         xmin = min(x)
+#         xmax = max(x)
+#         
+#         ymin = w*xmin + b
+#         ymax = w*xmax + b        
+#         
+#         point1 = (xmin+self.xShift, ymin+self.yShift)
+#         point2 = (xmax+self.xShift, ymax+self.yShift)
+
+        </span><span style="font-weight: bold">(</span>point1<span style="font-weight: bold">, </span>point2<span style="font-weight: bold">) = </span>plotUtil<span style="font-weight: bold">.</span>lineBoxIntersection<span style="font-weight: bold">(</span>w<span style="font-weight: bold">, -</span><span style="color: red">1</span><span style="font-weight: bold">, </span>b<span style="font-weight: bold">,
+                                                        </span><span style="color: red">1</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">,
+                                                        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">-</span><span style="color: red">2</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">-</span><span style="color: red">2</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+        
+        </span><span style="color: blue; font-weight: bold">if </span>point1 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">and </span>point2 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>point1 <span style="font-weight: bold">= (</span>point1<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>point1<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+            </span>point2 <span style="font-weight: bold">= (</span>point2<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>point2<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+            
+            </span>dx <span style="font-weight: bold">= </span>point2<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]-</span>point1<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+            </span>dy <span style="font-weight: bold">= </span>point2<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]-</span>point1<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+            </span><span style="color: blue; font-weight: bold">if </span>dx <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+                </span>angle <span style="font-weight: bold">= </span><span style="color: red">90 </span><span style="font-weight: bold">+ </span><span style="color: red">180</span><span style="font-weight: bold">*</span>dy<span style="font-weight: bold">*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>abs<span style="font-weight: bold">(</span>dy<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span>angle <span style="font-weight: bold">= </span>math<span style="font-weight: bold">.</span>atan<span style="font-weight: bold">(</span>dy<span style="font-weight: bold">*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>dx<span style="font-weight: bold">)*</span><span style="color: red">180.0</span><span style="font-weight: bold">/</span>math<span style="font-weight: bold">.</span>pi
+                   
+            <span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+                </span>graphicsUtils<span style="font-weight: bold">.</span>remove_from_screen<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line<span style="font-weight: bold">) 
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="font-weight: bold">= </span>graphicsUtils<span style="font-weight: bold">.</span>polygon<span style="font-weight: bold">([</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>to_screen<span style="font-weight: bold">(</span>point1<span style="font-weight: bold">), </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>to_screen<span style="font-weight: bold">(</span>point2<span style="font-weight: bold">)], </span>LINE_COLOR<span style="font-weight: bold">, </span>filled<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>behind<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">)
+                
+            </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addPacmanToLineStart <span style="color: blue; font-weight: bold">is True and </span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">) &gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+                </span><span style="color: green; font-style: italic"># Bring pacman to front of display
+                </span>graphicsUtils<span style="font-weight: bold">.</span>_canvas<span style="font-weight: bold">.</span>tag_raise<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">][</span><span style="color: red">0</span><span style="font-weight: bold">])
+                
+                </span><span style="color: green; font-style: italic"># Put pacman at beginning of line
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>movePacman<span style="font-weight: bold">(</span>point1<span style="font-weight: bold">, </span>angle<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">])
+
+            </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>PacmanPlotLogisticRegression1D<span style="font-weight: bold">(</span>PacmanPlot<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>zoom<span style="font-weight: bold">=</span><span style="color: red">1.0</span><span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span><span style="color: red">0.0</span><span style="font-weight: bold">):
+        </span>super<span style="font-weight: bold">(</span>PacmanPlotLogisticRegression1D<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">).</span>__init__<span style="font-weight: bold">(</span>zoom<span style="font-weight: bold">=</span>zoom<span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span>frameTime<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addPacmanToLineStart <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+       
+    def </span>plot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Logistic Regression'</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the 1D input points, data[i], colored based on their corresponding labels (either true or predicted).
+        Also, plot the logistic function fit if weights are given.
+    
+        This will draw on the existing pacman window (clearing it first) or create a new one if no window exists.
+    
+        x: list of 1D points, where each 1D point in the list is a 1 element numpy.ndarray
+        y: list of N labels, one for each point in data. Labels can be of any type that can be converted
+            a string.
+        weights: array of 2 values the first one is the weight on the data and the second value is the bias weight term.
+        If there are only 1 values in weights,
+            the bias term is assumed to be zero.  If None, no line is drawn. Default: None
+        """
+        </span><span style="color: blue; font-weight: bold">if </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>x<span style="font-weight: bold">).</span>size <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">return
+        
+        </span><span style="color: green; font-style: italic"># Process data, sorting by label
+        </span>possibleLabels <span style="font-weight: bold">= </span>list<span style="font-weight: bold">(</span>set<span style="font-weight: bold">(</span>y<span style="font-weight: bold">))
+        </span>sortedX <span style="font-weight: bold">= {}
+        </span><span style="color: blue; font-weight: bold">for </span>label <span style="color: blue; font-weight: bold">in </span>possibleLabels<span style="font-weight: bold">:
+            </span>sortedX<span style="font-weight: bold">[</span>label<span style="font-weight: bold">] = []
+    
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)):
+            </span>sortedX<span style="font-weight: bold">[</span>y<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]].</span>append<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+    
+        </span>xmin <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)))
+        </span>xmax <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)))
+        </span>ymin <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">))-</span><span style="color: red">1
+        </span>ymax <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">))
+        </span>width <span style="font-weight: bold">= </span>xmax<span style="font-weight: bold">-</span>xmin<span style="font-weight: bold">+</span><span style="color: red">3
+        </span>height <span style="font-weight: bold">= </span>ymax<span style="font-weight: bold">-</span>ymin<span style="font-weight: bold">+</span><span style="color: red">3
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initPlot<span style="font-weight: bold">(</span>xmin<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">, </span>width<span style="font-weight: bold">, </span>height<span style="font-weight: bold">)
+        
+        </span>gameState <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState<span style="font-weight: bold">.</span>deepCopy<span style="font-weight: bold">()
+                
+        </span>gameState<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">= []
+        
+        </span><span style="color: green; font-style: italic"># Put pacman in bottom left
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addPacmanToLineStart <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+            </span>gameState<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( </span>AgentState<span style="font-weight: bold">( </span>Configuration<span style="font-weight: bold">( (</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">), </span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">) )
+            
+        </span><span style="color: green; font-style: italic"># Add ghost at each point
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>py<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>enumerate<span style="font-weight: bold">(</span>possibleLabels<span style="font-weight: bold">):
+            </span>pointsX <span style="font-weight: bold">= </span>sortedX<span style="font-weight: bold">[</span>label<span style="font-weight: bold">]
+            </span><span style="color: blue; font-weight: bold">for </span>px <span style="color: blue; font-weight: bold">in </span>pointsX<span style="font-weight: bold">:
+                </span>point <span style="font-weight: bold">= (</span>px<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>py<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+                </span>agent <span style="font-weight: bold">= </span>AgentState<span style="font-weight: bold">( </span>Configuration<span style="font-weight: bold">( </span>point<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">), </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+                </span>agent<span style="font-weight: bold">.</span>isPacman <span style="font-weight: bold">= </span><span style="color: red">1</span><span style="font-weight: bold">-</span>py 
+                gameState<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>agent<span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic">#         self.initialize(gameState)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>clear_screen<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane <span style="font-weight: bold">= </span>InfoPane<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gridSize<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawStaticObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawAgentObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+
+        </span>graphicsUtils<span style="font-weight: bold">.</span>changeText<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane<span style="font-weight: bold">.</span>scoreText<span style="font-weight: bold">, </span>title<span style="font-weight: bold">)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+        
+        </span><span style="color: blue; font-weight: bold">if </span>weights <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setWeights<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the logistic regression line for given weights
+        
+        This will draw on the existing pacman window with the existing points
+        
+        weights: array or list of 2 values (or if just one value, the bias weight is assumed to be zero). If None,
+            no line is drawn. Default: None
+        """
+        </span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>size <span style="font-weight: bold">&gt;= </span><span style="color: red">2</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+            </span>b <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+            </span>b <span style="font-weight: bold">= </span><span style="color: red">0
+            
+        </span>xmin <span style="font-weight: bold">= </span><span style="color: red">1 </span><span style="font-weight: bold">- </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift
+        xmax <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">-</span><span style="color: red">2 </span><span style="font-weight: bold">- </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift
+    
+        x <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>linspace<span style="font-weight: bold">(</span>xmin<span style="font-weight: bold">, </span>xmax<span style="font-weight: bold">,</span><span style="color: red">30</span><span style="font-weight: bold">)
+        </span>y <span style="font-weight: bold">= </span><span style="color: red">1.0</span><span style="font-weight: bold">/(</span><span style="color: red">1</span><span style="font-weight: bold">+</span>np<span style="font-weight: bold">.</span>exp<span style="font-weight: bold">(-(</span>w<span style="font-weight: bold">*</span>x<span style="font-weight: bold">+</span>b<span style="font-weight: bold">)))
+        </span>x <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift
+        y <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift
+
+        <span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">for </span>obj <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line<span style="font-weight: bold">:
+                </span>graphicsUtils<span style="font-weight: bold">.</span>remove_from_screen<span style="font-weight: bold">(</span>obj<span style="font-weight: bold">)
+                 
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="font-weight: bold">= []
+        
+        </span>prevPoint <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>to_screen<span style="font-weight: bold">((</span>x<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">],</span>y<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]))
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span>len<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)):
+            </span>point <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>to_screen<span style="font-weight: bold">((</span>x<span style="font-weight: bold">[</span>i<span style="font-weight: bold">],</span>y<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]))
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>graphicsUtils<span style="font-weight: bold">.</span>line<span style="font-weight: bold">(</span>prevPoint<span style="font-weight: bold">, </span>point<span style="font-weight: bold">, </span>LINE_COLOR<span style="font-weight: bold">))
+            </span>prevPoint <span style="font-weight: bold">= </span>point
+            
+<span style="color: green; font-style: italic">#         prevPoint = self.to_screen((x[0],y[0]))
+#         for i in xrange(1,len(x)):
+#             point = self.to_screen((x[i],y[i]))
+#             line.append(graphicsUtils.line(prevPoint, point, LINE_COLOR, filled=0, behind=0)
+#                         
+#             prevPoint = point
+
+            
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addPacmanToLineStart <span style="color: blue; font-weight: bold">is True and </span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">) &gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span><span style="color: green; font-style: italic"># Bring pacman to front of display
+            </span>graphicsUtils<span style="font-weight: bold">.</span>_canvas<span style="font-weight: bold">.</span>tag_raise<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">][</span><span style="color: red">0</span><span style="font-weight: bold">])
+            
+            </span><span style="color: green; font-style: italic"># Put pacman at beginning of line
+            </span><span style="color: blue; font-weight: bold">if </span>w <span style="font-weight: bold">&gt;= </span><span style="color: red">0</span><span style="font-weight: bold">:
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>movePacman<span style="font-weight: bold">((</span>x<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]-</span><span style="color: red">0.5</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]), </span>Directions<span style="font-weight: bold">.</span>EAST<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">])
+            </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>movePacman<span style="font-weight: bold">((</span>x<span style="font-weight: bold">[-</span><span style="color: red">1</span><span style="font-weight: bold">]+</span><span style="color: red">0.5</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">[-</span><span style="color: red">1</span><span style="font-weight: bold">]), </span>Directions<span style="font-weight: bold">.</span>WEST<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentImages<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">])
+
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>PacmanPlotClassification2D<span style="font-weight: bold">(</span>PacmanPlot<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>zoom<span style="font-weight: bold">=</span><span style="color: red">1.0</span><span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span><span style="color: red">0.0</span><span style="font-weight: bold">):
+        </span>super<span style="font-weight: bold">(</span>PacmanPlotClassification2D<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">).</span>__init__<span style="font-weight: bold">(</span>zoom<span style="font-weight: bold">=</span>zoom<span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=</span>frameTime<span style="font-weight: bold">)
+       
+    </span><span style="color: blue; font-weight: bold">def </span>plot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Linear Classification'</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the 2D input points, data[i], colored based on their corresponding labels (either true or predicted).
+        Also, plot the linear separator line if weights are given.
+    
+        This will draw on the existing pacman window (clearing it first) or create a new one if no window exists.
+    
+        x: list of 2D points, where each 2D point in the list is a 2 element numpy.ndarray
+        y: list of N labels, one for each point in data. Labels can be of any type that can be converted
+            a string.
+        weights: array of 3 values the first two are the weight on the data and the third value is the bias
+        weight term. If there are only 2 values in weights, the bias term is assumed to be zero.  If None,
+        no line is drawn. Default: None
+        """
+        </span><span style="color: blue; font-weight: bold">if </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>x<span style="font-weight: bold">).</span>size <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">return
+        
+        </span><span style="color: green; font-style: italic"># Process data, sorting by label
+        </span>possibleLabels <span style="font-weight: bold">= </span>list<span style="font-weight: bold">(</span>set<span style="font-weight: bold">(</span>y<span style="font-weight: bold">))
+        </span>sortedX1 <span style="font-weight: bold">= {}
+        </span>sortedX2 <span style="font-weight: bold">= {}
+        </span><span style="color: blue; font-weight: bold">for </span>label <span style="color: blue; font-weight: bold">in </span>possibleLabels<span style="font-weight: bold">:
+            </span>sortedX1<span style="font-weight: bold">[</span>label<span style="font-weight: bold">] = []
+            </span>sortedX2<span style="font-weight: bold">[</span>label<span style="font-weight: bold">] = []
+    
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)):
+            </span>sortedX1<span style="font-weight: bold">[</span>y<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]].</span>append<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span>i<span style="font-weight: bold">][</span><span style="color: red">0</span><span style="font-weight: bold">])
+            </span>sortedX2<span style="font-weight: bold">[</span>y<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]].</span>append<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span>i<span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">])
+    
+        </span>x1min <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"inf"</span><span style="font-weight: bold">)
+        </span>x1max <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"-inf"</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>x1Values <span style="color: blue; font-weight: bold">in </span>sortedX1<span style="font-weight: bold">.</span>values<span style="font-weight: bold">():
+            </span>x1min <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x1Values<span style="font-weight: bold">), </span>x1min<span style="font-weight: bold">)
+            </span>x1max <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x1Values<span style="font-weight: bold">), </span>x1max<span style="font-weight: bold">)
+        </span>x2min <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"inf"</span><span style="font-weight: bold">)
+        </span>x2max <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"-inf"</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>x2Values <span style="color: blue; font-weight: bold">in </span>sortedX2<span style="font-weight: bold">.</span>values<span style="font-weight: bold">():
+            </span>x2min <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x2Values<span style="font-weight: bold">), </span>x2min<span style="font-weight: bold">)
+            </span>x2max <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x2Values<span style="font-weight: bold">), </span>x2max<span style="font-weight: bold">)
+
+        </span>x1min <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>x1min<span style="font-weight: bold">))
+        </span>x1max <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>x1max<span style="font-weight: bold">))
+        </span>x2min <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>floor<span style="font-weight: bold">(</span>x2min<span style="font-weight: bold">))
+        </span>x2max <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>math<span style="font-weight: bold">.</span>ceil<span style="font-weight: bold">(</span>x2max<span style="font-weight: bold">))
+
+        </span>width <span style="font-weight: bold">= </span>x1max<span style="font-weight: bold">-</span>x1min<span style="font-weight: bold">+</span><span style="color: red">3
+        </span>height <span style="font-weight: bold">= </span>x2max<span style="font-weight: bold">-</span>x2min<span style="font-weight: bold">+</span><span style="color: red">3
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initPlot<span style="font-weight: bold">(</span>x1min<span style="font-weight: bold">, </span>x2min<span style="font-weight: bold">, </span>width<span style="font-weight: bold">, </span>height<span style="font-weight: bold">)
+        
+        </span>gameState <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>blankGameState<span style="font-weight: bold">.</span>deepCopy<span style="font-weight: bold">()
+                
+        </span>gameState<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">= []
+        
+        </span><span style="color: green; font-style: italic"># Add ghost/pacman at each point
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>labelIndex<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>enumerate<span style="font-weight: bold">(</span>possibleLabels<span style="font-weight: bold">):
+            </span>pointsX1 <span style="font-weight: bold">= </span>sortedX1<span style="font-weight: bold">[</span>label<span style="font-weight: bold">]
+            </span>pointsX2 <span style="font-weight: bold">= </span>sortedX2<span style="font-weight: bold">[</span>label<span style="font-weight: bold">]
+            </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>py<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>pointsX1<span style="font-weight: bold">, </span>pointsX2<span style="font-weight: bold">):
+                </span>point <span style="font-weight: bold">= (</span>px<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>py<span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+                </span>agent <span style="font-weight: bold">= </span>AgentState<span style="font-weight: bold">( </span>Configuration<span style="font-weight: bold">( </span>point<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">), </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+                </span>agent<span style="font-weight: bold">.</span>isPacman <span style="font-weight: bold">= (</span>labelIndex<span style="font-weight: bold">==</span><span style="color: red">0</span><span style="font-weight: bold">) 
+                </span><span style="color: blue; font-weight: bold">if </span>labelIndex<span style="font-weight: bold">==</span><span style="color: red">2</span><span style="font-weight: bold">:
+                    </span>agent<span style="font-weight: bold">.</span>scaredTimer <span style="font-weight: bold">= </span><span style="color: red">1
+                </span>gameState<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>agent<span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic">#         self.initialize(gameState)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>clear_screen<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane <span style="font-weight: bold">= </span>InfoPane<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gridSize<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawStaticObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>drawAgentObjects<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+
+        </span>graphicsUtils<span style="font-weight: bold">.</span>changeText<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>infoPane<span style="font-weight: bold">.</span>scoreText<span style="font-weight: bold">, </span>title<span style="font-weight: bold">)
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+        
+        </span><span style="color: blue; font-weight: bold">if </span>weights <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setWeights<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Plot the logistic regression line for given weights
+        
+        This will draw on the existing pacman window with the existing points
+        
+        weights: array or list of 2 values (or if just one value, the bias weight is assumed to be zero). If None,
+            no line is drawn. Default: None
+        """
+        </span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+        </span>w1 <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+        </span>w2 <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>size <span style="font-weight: bold">&gt;= </span><span style="color: red">3</span><span style="font-weight: bold">:
+            </span>b <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">2</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>b <span style="font-weight: bold">= </span><span style="color: red">0
+            
+        </span><span style="color: green; font-style: italic"># Line functions
+        # Line where w1*x1 + w2*x2 + b = 0
+        # x2 = -(w1*x1 + b)/w2  or
+        # x1 = -(w2*x2 + b)/w1
+
+        # Figure out where line intersections bounding box around points
+
+        </span><span style="font-weight: bold">(</span>point1<span style="font-weight: bold">, </span>point2<span style="font-weight: bold">) = </span>plotUtil<span style="font-weight: bold">.</span>lineBoxIntersection<span style="font-weight: bold">(</span>w1<span style="font-weight: bold">, </span>w2<span style="font-weight: bold">, </span>b<span style="font-weight: bold">,
+                                                        </span><span style="color: red">1</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">,
+                                                        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">-</span><span style="color: red">2</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">-</span><span style="color: red">2</span><span style="font-weight: bold">-</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>point1 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">and </span>point2 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>point1 <span style="font-weight: bold">= (</span>point1<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>point1<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+            </span>point2 <span style="font-weight: bold">= (</span>point2<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>xShift<span style="font-weight: bold">, </span>point2<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>yShift<span style="font-weight: bold">)
+            
+            </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+                </span>graphicsUtils<span style="font-weight: bold">.</span>remove_from_screen<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line<span style="font-weight: bold">) 
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>line <span style="font-weight: bold">= </span>graphicsUtils<span style="font-weight: bold">.</span>polygon<span style="font-weight: bold">([</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>to_screen<span style="font-weight: bold">(</span>point1<span style="font-weight: bold">), </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>to_screen<span style="font-weight: bold">(</span>point2<span style="font-weight: bold">)], </span>LINE_COLOR<span style="font-weight: bold">, </span>filled<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>behind<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">)
+                
+        </span>graphicsUtils<span style="font-weight: bold">.</span>refresh<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+    </span><span style="color: darkred">"""
+    Demo code
+    """
+    </span><span style="color: green; font-style: italic"># Regression
+         
+    </span>display <span style="font-weight: bold">= </span>PacmanPlotRegression<span style="font-weight: bold">()
+        
+    </span>x <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>normal<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">10</span><span style="font-weight: bold">)
+    </span>display<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>x<span style="font-weight: bold">*</span><span style="color: red">3</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">**</span><span style="color: red">3</span><span style="font-weight: bold">)
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+       
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">6</span><span style="font-weight: bold">):
+        </span>display<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">([(</span><span style="color: red">5</span><span style="font-weight: bold">-</span>i<span style="font-weight: bold">)/</span><span style="color: red">5.0</span><span style="font-weight: bold">])
+        </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+            
+    </span><span style="color: green; font-style: italic"># With offset
+    </span>display<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">([</span><span style="color: red">0</span><span style="font-weight: bold">, -</span><span style="color: red">5</span><span style="font-weight: bold">])
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+    
+    </span><span style="color: green; font-style: italic"># Classification 2D
+     
+    </span>display <span style="font-weight: bold">= </span>PacmanPlotClassification2D<span style="font-weight: bold">()
+      
+    </span><span style="color: green; font-style: italic"># Generate labeled points
+    </span>means <span style="font-weight: bold">= ((</span><span style="color: red">4</span><span style="font-weight: bold">,</span><span style="color: red">4</span><span style="font-weight: bold">), (-</span><span style="color: red">4</span><span style="font-weight: bold">,</span><span style="color: red">4</span><span style="font-weight: bold">), (</span><span style="color: red">0</span><span style="font-weight: bold">,-</span><span style="color: red">4</span><span style="font-weight: bold">))
+    </span>labelNames<span style="font-weight: bold">= (</span><span style="color: red">'A'</span><span style="font-weight: bold">,</span><span style="color: red">'B'</span><span style="font-weight: bold">,</span><span style="color: red">'C'</span><span style="font-weight: bold">)
+    </span>labels <span style="font-weight: bold">= []
+    </span>data <span style="font-weight: bold">= []
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">15</span><span style="font-weight: bold">):
+        </span>labelIndex <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>randint<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">))
+        </span>labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>mean <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>means<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>data<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>normal<span style="font-weight: bold">(</span>mean<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span>mean<span style="font-weight: bold">.</span>shape<span style="font-weight: bold">))
+   
+    </span>display<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">)
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+   
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">8</span><span style="font-weight: bold">):
+        </span>display<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">([</span><span style="color: red">4</span><span style="font-weight: bold">,</span>i<span style="font-weight: bold">])
+        </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+  
+   
+    </span><span style="color: green; font-style: italic"># With offset and horizontal separator
+    </span>display<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">([</span><span style="color: red">0</span><span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">, -</span><span style="color: red">3</span><span style="font-weight: bold">])
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+    
+    </span><span style="color: green; font-style: italic"># Logistic Regression
+        
+    </span>display <span style="font-weight: bold">= </span>PacmanPlotLogisticRegression1D<span style="font-weight: bold">()
+       
+    </span><span style="color: green; font-style: italic"># Generate labeled points
+    </span>means <span style="font-weight: bold">= (</span><span style="color: red">1</span><span style="font-weight: bold">, -</span><span style="color: red">5</span><span style="font-weight: bold">)
+    </span>labelNames<span style="font-weight: bold">= (</span><span style="color: red">'A'</span><span style="font-weight: bold">,</span><span style="color: red">'B'</span><span style="font-weight: bold">)
+    </span>labels <span style="font-weight: bold">= []
+    </span>data <span style="font-weight: bold">= []
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">15</span><span style="font-weight: bold">):
+        </span>labelIndex <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>randint<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">))
+        </span>labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>mean <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>means<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>data<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>normal<span style="font-weight: bold">(</span>mean<span style="font-weight: bold">,</span><span style="color: red">3</span><span style="font-weight: bold">,</span>mean<span style="font-weight: bold">.</span>shape<span style="font-weight: bold">))
+   
+    </span>display<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">)
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+   
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">8</span><span style="font-weight: bold">):
+        </span>display<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">(</span><span style="color: red">4</span><span style="font-weight: bold">-</span>i<span style="font-weight: bold">)
+        </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+    </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+   
+    </span><span style="color: green; font-style: italic"># With offset and horizontal separator
+    </span>display<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">([-</span><span style="color: red">3</span><span style="font-weight: bold">, -</span><span style="color: red">6</span><span style="font-weight: bold">])
+
+</span><span style="color: green; font-style: italic">#     # Just some extra tests
+#     display = PacmanPlotRegression()
+#     display.plot([-2, 2, 2], [2, 2, -2], [4,0])
+#     display = PacmanPlotClassification2D()
+#     display.plot([np.array([-1,1]), np.ones(2), np.array([1,-1])], [0,1,2], [1,0])
+
+    </span>display<span style="font-weight: bold">.</span>takeControl<span style="font-weight: bold">()
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+    
+    
+</span>
+  </pre>
+  </body>
+  </html>
+  

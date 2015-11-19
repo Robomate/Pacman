@@ -1,0 +1,389 @@
+<html>
+  <head>
+  <title>plotUtil.py</title>
+  </head>
+  <body>
+  <h3>plotUtil.py (<a href="../plotUtil.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># plotUtil.py
+# -----------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+</span><span style="color: darkred">'''
+Utility module to help with plotting regression and classification data.
+'''
+</span><span style="color: blue; font-weight: bold">import </span>numpy as np
+<span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">import </span>matplotlib
+    <span style="color: green; font-style: italic"># Included to avoid crashing python when matplot lib and some other
+    # Tkinter app (e.g. pacman) are both involved
+    </span>matplotlib<span style="font-weight: bold">.</span>use<span style="font-weight: bold">(</span><span style="color: red">'TkAgg'</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">import </span>matplotlib<span style="font-weight: bold">.</span>pyplot as plt
+    matplotlibMissing <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+except </span>ImportError<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'plotUtil.plotRegression: Sorry, could not import matplotlib'
+    </span>matplotlibMissing <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+
+
+def </span>plotCurve<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>figureIdx<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>figureTitle<span style="font-weight: bold">=</span><span style="color: red">'Curve'</span><span style="font-weight: bold">,</span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    To plot a simple curve
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>matplotlibMissing<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return
+    </span>plt<span style="font-weight: bold">.</span>figure<span style="font-weight: bold">(</span>figureIdx<span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>figure<span style="font-weight: bold">(</span>figureIdx<span style="font-weight: bold">).</span>clf<span style="font-weight: bold">()
+    </span>plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">,</span><span style="color: red">'-r'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>title<span style="font-weight: bold">(</span>figureTitle<span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>pause<span style="font-weight: bold">(</span><span style="color: red">0.01</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>blocking <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>show<span style="font-weight: bold">()
+
+
+
+</span><span style="color: blue; font-weight: bold">def </span>plotRegression<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>figureIdx<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>showLegend<span style="font-weight: bold">=</span><span style="color: red">'False'</span><span style="font-weight: bold">, </span>figureTitle <span style="font-weight: bold">= </span><span style="color: red">'Linear Regression'</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Plot the input values x with their corresponding output values y (either true or predicted).
+    Also, plot the linear regression line if weights are given; assuming h_w(x) = weights[0]*x + weights[1].
+
+    This will draw on any current matplotlib figure (clearing it first) or create a new one if no figure exists.
+
+    x: array or list of N scalar values.
+    y: array or list of N scalar values.
+    weights: array or list of 2 values (or if just one value, the bias weight is assumed to be zero). If None,
+        no line is drawn. Default: None
+
+    blocking: If true, the function will not return until the figure has been closed. Default: False
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>matplotlibMissing<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return
+
+    </span>plt<span style="font-weight: bold">.</span>figure<span style="font-weight: bold">(</span>figureIdx<span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>figure<span style="font-weight: bold">(</span>figureIdx<span style="font-weight: bold">).</span>clf<span style="font-weight: bold">()
+    
+    </span><span style="color: blue; font-weight: bold">if </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>x<span style="font-weight: bold">).</span>size <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return
+    
+    if </span>isinstance<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">], </span>np<span style="font-weight: bold">.</span>ndarray<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># Scrape the first element of each data point
+        </span>x <span style="font-weight: bold">= [</span>data<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>data <span style="color: blue; font-weight: bold">in </span>x<span style="font-weight: bold">]
+
+    </span>plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span><span style="color: red">'bo'</span><span style="font-weight: bold">, </span>label<span style="font-weight: bold">=</span><span style="color: red">'(x[i], y[i])'</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>weights <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>size <span style="font-weight: bold">&gt;= </span><span style="color: red">2</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+            </span>b <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>weights
+            b <span style="font-weight: bold">= </span><span style="color: red">0
+
+        </span>xmin <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)
+        </span>xmax <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)
+
+        </span>ymin <span style="font-weight: bold">= </span>w<span style="font-weight: bold">*</span>xmin <span style="font-weight: bold">+ </span>b
+        ymax <span style="font-weight: bold">= </span>w<span style="font-weight: bold">*</span>xmax <span style="font-weight: bold">+ </span>b
+
+        plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">([</span>xmin<span style="font-weight: bold">, </span>xmax<span style="font-weight: bold">], [</span>ymin<span style="font-weight: bold">, </span>ymax<span style="font-weight: bold">], </span><span style="color: red">'r-'</span><span style="font-weight: bold">, </span>label<span style="font-weight: bold">=</span><span style="color: red">'y = w[1]*x + w[2]'</span><span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>xlabel<span style="font-weight: bold">(</span><span style="color: red">'x'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>ylabel<span style="font-weight: bold">(</span><span style="color: red">'y'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>title<span style="font-weight: bold">(</span>figureTitle<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>showLegend <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>legend<span style="font-weight: bold">(</span>numpoints<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>pause<span style="font-weight: bold">(</span><span style="color: red">0.01</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>blocking <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>show<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>plotLogisticRegression1D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>showLegend<span style="font-weight: bold">=</span><span style="color: red">'False'</span><span style="font-weight: bold">, </span>figureTitle <span style="font-weight: bold">= </span><span style="color: red">"Logistic Regression"</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Plot the 1D input points, data[i], colored based on their corresponding labels (either true or predicted).
+    Also, plot the logistic function fit if weights are given.
+
+    This will draw on any current matplotlib figure (clearing it first) or create a new one if no figure exists.
+
+    data: list of 1D points, where each 1D point in the list is a 1 element numpy.ndarray
+    labels: list of N labels, one for each point in data. Labels can be of any type that can be converted
+        a string.
+    weights: array of 2 values the first one is the weight on the data and the second value is the bias weight term.
+    If there are only 1 values in weights,
+        the bias term is assumed to be zero.  If None, no line is drawn. Default: None
+
+    blocking: If true, the function will not return until the figure has been closed. Default: False
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>matplotlibMissing<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return
+
+    </span><span style="color: green; font-style: italic"># Process data, sorting by label
+    </span>possibleLabels <span style="font-weight: bold">= </span>list<span style="font-weight: bold">(</span>set<span style="font-weight: bold">(</span>labels<span style="font-weight: bold">))
+    </span>sortedX <span style="font-weight: bold">= {}
+    </span><span style="color: blue; font-weight: bold">for </span>label <span style="color: blue; font-weight: bold">in </span>possibleLabels<span style="font-weight: bold">:
+        </span>sortedX<span style="font-weight: bold">[</span>label<span style="font-weight: bold">] = []
+
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>data<span style="font-weight: bold">)):
+        </span>sortedX<span style="font-weight: bold">[</span>labels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]].</span>append<span style="font-weight: bold">(</span>data<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+
+    </span>xmin <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span>data<span style="font-weight: bold">)
+    </span>xmax <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>data<span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>clf<span style="font-weight: bold">()
+
+    </span>markers <span style="font-weight: bold">= [</span><span style="color: red">'o'</span><span style="font-weight: bold">, </span><span style="color: red">'o'</span><span style="font-weight: bold">]
+    </span>colors <span style="font-weight: bold">= [</span><span style="color: red">'r'</span><span style="font-weight: bold">, </span><span style="color: red">'g'</span><span style="font-weight: bold">]
+
+    </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>i<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>enumerate<span style="font-weight: bold">(</span>possibleLabels<span style="font-weight: bold">):
+        </span>marker <span style="font-weight: bold">= </span>colors<span style="font-weight: bold">[</span>i<span style="font-weight: bold">%</span>len<span style="font-weight: bold">(</span>colors<span style="font-weight: bold">)] + </span>markers<span style="font-weight: bold">[</span>i<span style="font-weight: bold">%</span>len<span style="font-weight: bold">(</span>markers<span style="font-weight: bold">)]
+        </span>plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>sortedX<span style="font-weight: bold">[</span>label<span style="font-weight: bold">], [</span>i<span style="font-weight: bold">]*</span>len<span style="font-weight: bold">(</span>sortedX<span style="font-weight: bold">[</span>label<span style="font-weight: bold">]), </span>marker<span style="font-weight: bold">, </span>label<span style="font-weight: bold">=</span>str<span style="font-weight: bold">(</span>label<span style="font-weight: bold">))
+        </span>plt<span style="font-weight: bold">.</span>axis<span style="font-weight: bold">([</span>xmin<span style="font-weight: bold">, </span>xmax<span style="font-weight: bold">, -</span><span style="color: red">0.5</span><span style="font-weight: bold">, </span><span style="color: red">1.5</span><span style="font-weight: bold">])
+
+    </span><span style="color: blue; font-weight: bold">if </span>weights <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>shape <span style="font-weight: bold">== ():
+            </span>w <span style="font-weight: bold">= </span>weights
+        <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>w <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>size <span style="font-weight: bold">&gt;= </span><span style="color: red">2</span><span style="font-weight: bold">:
+            </span>b <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>b <span style="font-weight: bold">= </span><span style="color: red">0
+
+        </span>x <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>linspace<span style="font-weight: bold">(</span>xmin<span style="font-weight: bold">, </span>xmax<span style="font-weight: bold">,</span><span style="color: red">100</span><span style="font-weight: bold">)
+        </span>y <span style="font-weight: bold">= </span><span style="color: red">1.0</span><span style="font-weight: bold">/(</span><span style="color: red">1</span><span style="font-weight: bold">+</span>np<span style="font-weight: bold">.</span>exp<span style="font-weight: bold">(-(</span>w<span style="font-weight: bold">*</span>x<span style="font-weight: bold">+</span>b<span style="font-weight: bold">)))
+
+        </span>plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span><span style="color: red">'b-'</span><span style="font-weight: bold">, </span>label<span style="font-weight: bold">=</span><span style="color: red">'Logistic fit'</span><span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>xlabel<span style="font-weight: bold">(</span><span style="color: red">'x1'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>ylabel<span style="font-weight: bold">(</span><span style="color: red">'x2'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>title<span style="font-weight: bold">(</span><span style="color: red">'Logistic Regression'</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>showLegend <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>legend<span style="font-weight: bold">(</span>numpoints<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>pause<span style="font-weight: bold">(</span><span style="color: red">0.01</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>blocking <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>show<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>plotClassification2D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>showLegend<span style="font-weight: bold">=</span><span style="color: red">'False'</span><span style="font-weight: bold">, </span>figureTitle <span style="font-weight: bold">= </span><span style="color: red">"Linear Classification"</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Plot the 2D input points, data[i], colored based on their corresponding labels (either true or predicted).
+    Also, plot the linear seperator line if weights are given; the line where 0 = w[0]*x1 + w[1]*x2 + w[2].
+
+    This will draw on any current matplotlib figure (clearing it first) or create a new one if no figure exists.
+
+    data: list of 2D points, where each 2D point in the list is a 2 element numpy.ndarray
+    labels: list of N labels, one for each point in data. Labels can be of any type that can be converted
+        a string.
+    weights: array of 3 values the first two are the weights on the first and second coordinate, respectively,
+        of the 2D data. The third value is the bias weight term. If there are only 2 values in weights,
+        the bias term is assumed to be zero.  If None, no line is drawn. Default: None
+
+    blocking: If true, the function will not return until the figure has been closed. Default: False
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>matplotlibMissing<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return
+
+    </span><span style="color: green; font-style: italic"># Process data, sorting by label
+    </span>possibleLabels <span style="font-weight: bold">= </span>list<span style="font-weight: bold">(</span>set<span style="font-weight: bold">(</span>labels<span style="font-weight: bold">))
+    </span>sortedX1 <span style="font-weight: bold">= {}
+    </span>sortedX2 <span style="font-weight: bold">= {}
+    </span><span style="color: blue; font-weight: bold">for </span>label <span style="color: blue; font-weight: bold">in </span>possibleLabels<span style="font-weight: bold">:
+        </span>sortedX1<span style="font-weight: bold">[</span>label<span style="font-weight: bold">] = []
+        </span>sortedX2<span style="font-weight: bold">[</span>label<span style="font-weight: bold">] = []
+
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>data<span style="font-weight: bold">)):
+        </span>sortedX1<span style="font-weight: bold">[</span>labels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]].</span>append<span style="font-weight: bold">(</span>data<span style="font-weight: bold">[</span>i<span style="font-weight: bold">][</span><span style="color: red">0</span><span style="font-weight: bold">])
+        </span>sortedX2<span style="font-weight: bold">[</span>labels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]].</span>append<span style="font-weight: bold">(</span>data<span style="font-weight: bold">[</span>i<span style="font-weight: bold">][</span><span style="color: red">1</span><span style="font-weight: bold">])
+
+    </span>plt<span style="font-weight: bold">.</span>clf<span style="font-weight: bold">()
+
+    </span>markers <span style="font-weight: bold">= [</span><span style="color: red">'o'</span><span style="font-weight: bold">, </span><span style="color: red">'v'</span><span style="font-weight: bold">, </span><span style="color: red">'^'</span><span style="font-weight: bold">, </span><span style="color: red">'&lt;'</span><span style="font-weight: bold">, </span><span style="color: red">'&gt;'</span><span style="font-weight: bold">, </span><span style="color: red">'8'</span><span style="font-weight: bold">, </span><span style="color: red">'s'</span><span style="font-weight: bold">, </span><span style="color: red">'p'</span><span style="font-weight: bold">, </span><span style="color: red">'*'</span><span style="font-weight: bold">, </span><span style="color: red">'h'</span><span style="font-weight: bold">, </span><span style="color: red">'H'</span><span style="font-weight: bold">, </span><span style="color: red">'D'</span><span style="font-weight: bold">, </span><span style="color: red">'d'</span><span style="font-weight: bold">]
+    </span>colors <span style="font-weight: bold">= [</span><span style="color: red">'b'</span><span style="font-weight: bold">, </span><span style="color: red">'g'</span><span style="font-weight: bold">, </span><span style="color: red">'r'</span><span style="font-weight: bold">, </span><span style="color: red">'c'</span><span style="font-weight: bold">, </span><span style="color: red">'m'</span><span style="font-weight: bold">, </span><span style="color: red">'y'</span><span style="font-weight: bold">, </span><span style="color: red">'k'</span><span style="font-weight: bold">]
+
+    </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>i<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>enumerate<span style="font-weight: bold">(</span>possibleLabels<span style="font-weight: bold">):
+        </span>marker <span style="font-weight: bold">= </span>colors<span style="font-weight: bold">[</span>i<span style="font-weight: bold">%</span>len<span style="font-weight: bold">(</span>colors<span style="font-weight: bold">)] + </span>markers<span style="font-weight: bold">[</span>i<span style="font-weight: bold">%</span>len<span style="font-weight: bold">(</span>markers<span style="font-weight: bold">)]
+        </span>plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>sortedX1<span style="font-weight: bold">[</span>label<span style="font-weight: bold">], </span>sortedX2<span style="font-weight: bold">[</span>label<span style="font-weight: bold">], </span>marker<span style="font-weight: bold">, </span>label<span style="font-weight: bold">=</span>label<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>weights <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>weights<span style="font-weight: bold">)
+
+        </span>w1 <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+        </span>w2 <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">if </span>weights<span style="font-weight: bold">.</span>size <span style="font-weight: bold">&gt;= </span><span style="color: red">3</span><span style="font-weight: bold">:
+            </span>b <span style="font-weight: bold">= </span>weights<span style="font-weight: bold">[</span><span style="color: red">2</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>b <span style="font-weight: bold">= </span><span style="color: red">0
+
+        </span>x1min <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"inf"</span><span style="font-weight: bold">)
+        </span>x1max <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"-inf"</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>x1Values <span style="color: blue; font-weight: bold">in </span>sortedX1<span style="font-weight: bold">.</span>values<span style="font-weight: bold">():
+            </span>x1min <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x1Values<span style="font-weight: bold">), </span>x1min<span style="font-weight: bold">)
+            </span>x1max <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x1Values<span style="font-weight: bold">), </span>x1max<span style="font-weight: bold">)
+        </span>x2min <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"inf"</span><span style="font-weight: bold">)
+        </span>x2max <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"-inf"</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>x2Values <span style="color: blue; font-weight: bold">in </span>sortedX2<span style="font-weight: bold">.</span>values<span style="font-weight: bold">():
+            </span>x2min <span style="font-weight: bold">= </span>min<span style="font-weight: bold">(</span>min<span style="font-weight: bold">(</span>x2Values<span style="font-weight: bold">), </span>x2min<span style="font-weight: bold">)
+            </span>x2max <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>max<span style="font-weight: bold">(</span>x2Values<span style="font-weight: bold">), </span>x2max<span style="font-weight: bold">)
+
+        </span><span style="color: green; font-style: italic"># Line functions
+        # Line where w1*x1 + w2*x2 + b = 0
+        # x2 = -(w1*x1 + b)/w2  or
+        # x1 = -(w2*x2 + b)/w1
+
+        # Figure out where line intersections bounding box around points
+
+        </span><span style="font-weight: bold">(</span>point1<span style="font-weight: bold">, </span>point2<span style="font-weight: bold">) = </span>lineBoxIntersection<span style="font-weight: bold">(</span>w1<span style="font-weight: bold">, </span>w2<span style="font-weight: bold">, </span>b<span style="font-weight: bold">, </span>x1min<span style="font-weight: bold">, </span>x2min<span style="font-weight: bold">, </span>x1max<span style="font-weight: bold">, </span>x2max<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>point1 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">and </span>point2 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>plt<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">([</span>point1<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">], </span>point2<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]], [</span>point1<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">], </span>point2<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]], </span><span style="color: red">'r-'</span><span style="font-weight: bold">, </span>label<span style="font-weight: bold">=</span><span style="color: red">'0 = w[0]*x1 + w[1]*x2 + w[2]'</span><span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>xlabel<span style="font-weight: bold">(</span><span style="color: red">'x1'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>ylabel<span style="font-weight: bold">(</span><span style="color: red">'x2'</span><span style="font-weight: bold">)
+    </span>plt<span style="font-weight: bold">.</span>title<span style="font-weight: bold">(</span><span style="color: red">'Linear Classification'</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>showLegend <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>legend<span style="font-weight: bold">(</span>numpoints<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+
+    </span>plt<span style="font-weight: bold">.</span>pause<span style="font-weight: bold">(</span><span style="color: red">0.01</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>blocking <span style="color: blue; font-weight: bold">is True</span><span style="font-weight: bold">:
+        </span>plt<span style="font-weight: bold">.</span>show<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>lineBoxIntersection<span style="font-weight: bold">(</span>w1<span style="font-weight: bold">, </span>w2<span style="font-weight: bold">, </span>b<span style="font-weight: bold">, </span>xmin<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">, </span>xmax<span style="font-weight: bold">, </span>ymax<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Figure out where line (w1*x+w2*y+b=0) intersections the 
+    box (xmin, ymin) -&gt; (xmax, ymax)
+    """
+        
+    </span>point1 <span style="font-weight: bold">= </span><span style="color: blue">None
+    </span>point2 <span style="font-weight: bold">= </span><span style="color: blue">None
+    </span><span style="color: blue; font-weight: bold">if </span>w2 <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+        </span>x1a <span style="font-weight: bold">= -(</span>w2<span style="font-weight: bold">*</span>ymin <span style="font-weight: bold">+ </span>b<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>w1
+        x1b <span style="font-weight: bold">= -(</span>w2<span style="font-weight: bold">*</span>ymax <span style="font-weight: bold">+ </span>b<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>w1
+    
+        point1 <span style="font-weight: bold">= (</span>x1a<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">)
+        </span>point2 <span style="font-weight: bold">= (</span>x1b<span style="font-weight: bold">, </span>ymax<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span>x2a <span style="font-weight: bold">= -(</span>w1<span style="font-weight: bold">*</span>xmin <span style="font-weight: bold">+ </span>b<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>w2
+        x2b <span style="font-weight: bold">= -(</span>w1<span style="font-weight: bold">*</span>xmax <span style="font-weight: bold">+ </span>b<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>w2
+        
+        <span style="color: blue; font-weight: bold">if </span>w1 <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span>point1 <span style="font-weight: bold">= (</span>xmin<span style="font-weight: bold">, </span>x2a<span style="font-weight: bold">)
+            </span>point2 <span style="font-weight: bold">= (</span>xmax<span style="font-weight: bold">, </span>x2b<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+
+            </span>x1a <span style="font-weight: bold">= -(</span>w2<span style="font-weight: bold">*</span>ymin <span style="font-weight: bold">+ </span>b<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>w1
+            x1b <span style="font-weight: bold">= -(</span>w2<span style="font-weight: bold">*</span>ymax <span style="font-weight: bold">+ </span>b<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>w1
+            <span style="color: green; font-style: italic"># Point 1
+            </span><span style="color: blue; font-weight: bold">if </span>x2a <span style="font-weight: bold">&lt; </span>ymin<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>xmin <span style="font-weight: bold">&lt;= </span>x1a <span style="color: blue; font-weight: bold">and </span>x1a <span style="font-weight: bold">&lt;= </span>xmax<span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># Point 1 on bottom edge
+                    </span>point1 <span style="font-weight: bold">= (</span>x1a<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">elif </span>x2a <span style="font-weight: bold">&gt; </span>ymax<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>xmin <span style="font-weight: bold">&lt;= </span>x1b <span style="color: blue; font-weight: bold">and </span>x1b <span style="font-weight: bold">&lt;= </span>xmax<span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># Point 1 on top edge
+                    </span>point1 <span style="font-weight: bold">= (</span>x1b<span style="font-weight: bold">, </span>ymax<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span><span style="color: green; font-style: italic"># Point 1 on left edge
+                </span>point1 <span style="font-weight: bold">= (</span>xmin<span style="font-weight: bold">, </span>x2a<span style="font-weight: bold">)
+                
+            </span><span style="color: green; font-style: italic"># Point 2
+            </span><span style="color: blue; font-weight: bold">if </span>point1 <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None</span><span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>x2b <span style="font-weight: bold">&lt; </span>ymin<span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># Point 2 on bottom edge
+                    </span>point2 <span style="font-weight: bold">= (</span>x1a<span style="font-weight: bold">, </span>ymin<span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">elif </span>x2b <span style="font-weight: bold">&gt; </span>ymax<span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># Point 2 on top edge
+                    </span>point2 <span style="font-weight: bold">= (</span>x1b<span style="font-weight: bold">, </span>ymax<span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># Point 2 on right edge
+                    </span>point2 <span style="font-weight: bold">= (</span>xmax<span style="font-weight: bold">, </span>x2b<span style="font-weight: bold">)                                                
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>point1<span style="font-weight: bold">, </span>point2<span style="font-weight: bold">)
+
+
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+    </span><span style="color: darkred">"""
+    Demo code
+    """
+    </span><span style="color: green; font-style: italic"># Regression
+ 
+    </span>x <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>normal<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">10</span><span style="font-weight: bold">)
+    </span>plotRegression<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>x<span style="font-weight: bold">**</span><span style="color: red">3</span><span style="font-weight: bold">, </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+ 
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">8</span><span style="font-weight: bold">):
+        </span>plotRegression<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>x<span style="font-weight: bold">**</span><span style="color: red">3</span><span style="font-weight: bold">, [</span>i<span style="font-weight: bold">])
+ 
+    </span><span style="color: green; font-style: italic"># With offset
+    </span>plotRegression<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>x<span style="font-weight: bold">**</span><span style="color: red">3</span><span style="font-weight: bold">, [</span><span style="color: red">8</span><span style="font-weight: bold">, -</span><span style="color: red">10</span><span style="font-weight: bold">], </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+ 
+    # Classification 2D
+ 
+    # Generate labeled points
+    </span>means <span style="font-weight: bold">= ((</span><span style="color: red">4</span><span style="font-weight: bold">,</span><span style="color: red">4</span><span style="font-weight: bold">), (-</span><span style="color: red">4</span><span style="font-weight: bold">,</span><span style="color: red">4</span><span style="font-weight: bold">), (</span><span style="color: red">0</span><span style="font-weight: bold">,-</span><span style="color: red">4</span><span style="font-weight: bold">))
+    </span>labelNames<span style="font-weight: bold">= (</span><span style="color: red">'A'</span><span style="font-weight: bold">,</span><span style="color: red">'B'</span><span style="font-weight: bold">,</span><span style="color: red">'C'</span><span style="font-weight: bold">)
+    </span>labels <span style="font-weight: bold">= []
+    </span>data <span style="font-weight: bold">= []
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">15</span><span style="font-weight: bold">):
+        </span>labelIndex <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>randint<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">))
+        </span>labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>mean <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>means<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>data<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>normal<span style="font-weight: bold">(</span>mean<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span>mean<span style="font-weight: bold">.</span>shape<span style="font-weight: bold">))
+ 
+    </span>plotClassification2D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+ 
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">8</span><span style="font-weight: bold">):
+        </span>plotClassification2D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, [</span><span style="color: red">4</span><span style="font-weight: bold">,</span>i<span style="font-weight: bold">])
+ 
+ 
+    </span><span style="color: green; font-style: italic"># With offset and horizontal separator
+    </span>plotClassification2D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, [</span><span style="color: red">0</span><span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">, -</span><span style="color: red">3</span><span style="font-weight: bold">], </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+    
+    # Classification 1D
+
+    # Generate labeled points
+    </span>means <span style="font-weight: bold">= (</span><span style="color: red">1</span><span style="font-weight: bold">, -</span><span style="color: red">5</span><span style="font-weight: bold">)
+    </span>labelNames<span style="font-weight: bold">= (</span><span style="color: red">'A'</span><span style="font-weight: bold">,</span><span style="color: red">'B'</span><span style="font-weight: bold">)
+    </span>labels <span style="font-weight: bold">= []
+    </span>data <span style="font-weight: bold">= []
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">15</span><span style="font-weight: bold">):
+        </span>labelIndex <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>randint<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">))
+        </span>labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>labelNames<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>mean <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>array<span style="font-weight: bold">(</span>means<span style="font-weight: bold">[</span>labelIndex<span style="font-weight: bold">])
+        </span>data<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>np<span style="font-weight: bold">.</span>random<span style="font-weight: bold">.</span>normal<span style="font-weight: bold">(</span>mean<span style="font-weight: bold">,</span><span style="color: red">3</span><span style="font-weight: bold">,</span>mean<span style="font-weight: bold">.</span>shape<span style="font-weight: bold">))
+
+    </span>plotLogisticRegression1D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">8</span><span style="font-weight: bold">):
+        </span>plotLogisticRegression1D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, </span><span style="color: red">4</span><span style="font-weight: bold">-</span>i<span style="font-weight: bold">)
+
+
+    </span><span style="color: green; font-style: italic"># With offset and horizontal separator
+    </span>plotLogisticRegression1D<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>labels<span style="font-weight: bold">, [-</span><span style="color: red">3</span><span style="font-weight: bold">, -</span><span style="color: red">6</span><span style="font-weight: bold">], </span>blocking<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># Blocked until the window is closed
+    
+    
+
+
+</span>
+  </pre>
+  </body>
+  </html>
+  

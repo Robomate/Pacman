@@ -1,0 +1,66 @@
+<html>
+  <head>
+  <title>simpleDataGeneration.py</title>
+  </head>
+  <body>
+  <h3>simpleDataGeneration.py (<a href="../simpleDataGeneration.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># simpleDataGeneration.py
+# -----------------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# This file is for generating random samples from the following linear Gaussian
+# model: y = ax + b + G(m,var)
+
+</span><span style="color: blue; font-weight: bold">import </span>random
+<span style="color: blue; font-weight: bold">import </span>numpy as np
+
+a <span style="font-weight: bold">= </span><span style="color: red">1.77
+</span>b <span style="font-weight: bold">= </span><span style="color: red">0.1
+</span>m <span style="font-weight: bold">= </span><span style="color: red">0.2
+</span>sigma <span style="font-weight: bold">= </span><span style="color: red">0.05
+
+</span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Generating data from: y = " </span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>a<span style="font-weight: bold">)+</span><span style="color: red">"x+"</span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>b<span style="font-weight: bold">)+</span><span style="color: red">"+" </span><span style="font-weight: bold">+ </span><span style="color: red">"G(" </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>m<span style="font-weight: bold">) + </span><span style="color: red">', '</span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>sigma<span style="font-weight: bold">)+</span><span style="color: red">")..."
+
+</span>dataNum <span style="font-weight: bold">= </span><span style="color: red">50
+</span>validationNum <span style="font-weight: bold">= </span><span style="color: red">20
+</span>testNum <span style="font-weight: bold">= </span><span style="color: red">50
+</span>dataRange <span style="font-weight: bold">= [-</span><span style="color: red">5</span><span style="font-weight: bold">,</span><span style="color: red">5</span><span style="font-weight: bold">]
+</span>datasetName <span style="font-weight: bold">= </span><span style="color: red">"simple50"
+
+</span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"dataNum: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>dataNum<span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"validationNum: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>validationNum<span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"testNum: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>testNum<span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"dataRange: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>dataRange<span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"datasetName: " </span><span style="font-weight: bold">+ </span>datasetName <span style="font-weight: bold">+ </span><span style="color: red">".npz"
+
+
+
+</span>x <span style="font-weight: bold">= [</span>random<span style="font-weight: bold">.</span>random<span style="font-weight: bold">()*(</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]-</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">])+</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>dataNum<span style="font-weight: bold">)]
+</span>y <span style="font-weight: bold">= [</span>a<span style="font-weight: bold">*</span>s <span style="font-weight: bold">+ </span>b <span style="font-weight: bold">+ </span>random<span style="font-weight: bold">.</span>gauss<span style="font-weight: bold">(</span>m<span style="font-weight: bold">,</span>sigma<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>s <span style="color: blue; font-weight: bold">in </span>x<span style="font-weight: bold">]
+
+</span>xValidation <span style="font-weight: bold">= [</span>random<span style="font-weight: bold">.</span>random<span style="font-weight: bold">()*(</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]-</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">])+</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>validationNum<span style="font-weight: bold">)]
+</span>yValidation <span style="font-weight: bold">= [</span>a<span style="font-weight: bold">*</span>s <span style="font-weight: bold">+ </span>b <span style="font-weight: bold">+ </span>random<span style="font-weight: bold">.</span>gauss<span style="font-weight: bold">(</span>m<span style="font-weight: bold">,</span>sigma<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>s <span style="color: blue; font-weight: bold">in </span>xValidation<span style="font-weight: bold">]
+
+</span>xTest <span style="font-weight: bold">= [</span>random<span style="font-weight: bold">.</span>random<span style="font-weight: bold">()*(</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]-</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">])+</span>dataRange<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>testNum<span style="font-weight: bold">)]
+</span>yTest <span style="font-weight: bold">= [</span>a<span style="font-weight: bold">*</span>s <span style="font-weight: bold">+ </span>b <span style="font-weight: bold">+ </span>random<span style="font-weight: bold">.</span>gauss<span style="font-weight: bold">(</span>m<span style="font-weight: bold">,</span>sigma<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>s <span style="color: blue; font-weight: bold">in </span>xTest<span style="font-weight: bold">]
+
+</span>np<span style="font-weight: bold">.</span>savez<span style="font-weight: bold">(</span>datasetName<span style="font-weight: bold">, </span>data <span style="font-weight: bold">= </span>x<span style="font-weight: bold">, </span>regressionResults <span style="font-weight: bold">= </span>y<span style="font-weight: bold">, </span>paras <span style="font-weight: bold">= [</span>a<span style="font-weight: bold">, </span>b<span style="font-weight: bold">+</span>m<span style="font-weight: bold">], </span>\
+         dataVali <span style="font-weight: bold">= </span>xValidation<span style="font-weight: bold">, </span>regressionResultsVali <span style="font-weight: bold">= </span>yValidation<span style="font-weight: bold">, </span>\
+         dataTest <span style="font-weight: bold">= </span>xTest<span style="font-weight: bold">, </span>regressionResultsTest <span style="font-weight: bold">= </span>yTest<span style="font-weight: bold">)
+</span>
+  </pre>
+  </body>
+  </html>
+  

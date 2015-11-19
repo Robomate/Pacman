@@ -1,0 +1,289 @@
+<html>
+  <head>
+  <title>classification_su15TestClasses.py</title>
+  </head>
+  <body>
+  <h3>classification_su15TestClasses.py (<a href="../classification_su15TestClasses.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># classification_su15TestClasses.py
+# ---------------------------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+</span><span style="color: blue; font-weight: bold">from </span>hashlib <span style="color: blue; font-weight: bold">import </span>sha1
+<span style="color: blue; font-weight: bold">import </span>testClasses
+<span style="color: green; font-style: italic"># import json
+
+</span><span style="color: blue; font-weight: bold">from </span>collections <span style="color: blue; font-weight: bold">import </span>defaultdict
+<span style="color: blue; font-weight: bold">from </span>pprint <span style="color: blue; font-weight: bold">import </span>PrettyPrinter
+pp <span style="font-weight: bold">= </span>PrettyPrinter<span style="font-weight: bold">()
+
+</span><span style="color: green; font-style: italic"># from game import Agent
+</span><span style="color: blue; font-weight: bold">from </span>pacman <span style="color: blue; font-weight: bold">import </span>GameState
+<span style="color: green; font-style: italic"># from ghostAgents import RandomGhost, DirectionalGhost
+</span><span style="color: blue; font-weight: bold">import </span>random<span style="font-weight: bold">, </span>math<span style="font-weight: bold">, </span>traceback<span style="font-weight: bold">, </span>sys<span style="font-weight: bold">, </span>os
+<span style="color: green; font-style: italic"># import layout, pacman
+# import autograder
+# import grading
+
+</span><span style="color: blue; font-weight: bold">import </span>dataClassifier<span style="font-weight: bold">, </span>samples
+
+VERBOSE <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+
+
+
+</span><span style="color: green; font-style: italic"># Data sets
+# ---------
+
+</span>EVAL_MULTIPLE_CHOICE<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True
+
+</span>numTraining <span style="font-weight: bold">= </span><span style="color: red">100
+</span>TEST_SET_SIZE <span style="font-weight: bold">= </span><span style="color: red">100
+</span>DIGIT_DATUM_WIDTH<span style="font-weight: bold">=</span><span style="color: red">28
+</span>DIGIT_DATUM_HEIGHT<span style="font-weight: bold">=</span><span style="color: red">28
+
+</span><span style="color: blue; font-weight: bold">def </span>readDigitData<span style="font-weight: bold">(</span>trainingSize<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">):
+    </span>rootdata <span style="font-weight: bold">= </span><span style="color: red">'digitdata/'
+    </span><span style="color: green; font-style: italic"># loading digits data
+    </span>rawTrainingData <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadDataFile<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'trainingimages'</span><span style="font-weight: bold">, </span>trainingSize<span style="font-weight: bold">,</span>DIGIT_DATUM_WIDTH<span style="font-weight: bold">,</span>DIGIT_DATUM_HEIGHT<span style="font-weight: bold">)
+    </span>trainingLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadLabelsFile<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">"traininglabels"</span><span style="font-weight: bold">, </span>trainingSize<span style="font-weight: bold">)
+    </span>rawValidationData <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadDataFile<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">"validationimages"</span><span style="font-weight: bold">, </span>TEST_SET_SIZE<span style="font-weight: bold">,</span>DIGIT_DATUM_WIDTH<span style="font-weight: bold">,</span>DIGIT_DATUM_HEIGHT<span style="font-weight: bold">)
+    </span>validationLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadLabelsFile<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">"validationlabels"</span><span style="font-weight: bold">, </span>TEST_SET_SIZE<span style="font-weight: bold">)
+    </span>rawTestData <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadDataFile<span style="font-weight: bold">(</span><span style="color: red">"digitdata/testimages"</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">,</span>DIGIT_DATUM_WIDTH<span style="font-weight: bold">,</span>DIGIT_DATUM_HEIGHT<span style="font-weight: bold">)
+    </span>testLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadLabelsFile<span style="font-weight: bold">(</span><span style="color: red">"digitdata/testlabels"</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Extracting features..."
+        </span>featureFunction <span style="font-weight: bold">= </span>dataClassifier<span style="font-weight: bold">.</span>basicFeatureExtractorDigit
+        trainingData <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span>featureFunction<span style="font-weight: bold">, </span>rawTrainingData<span style="font-weight: bold">)
+        </span>validationData <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span>featureFunction<span style="font-weight: bold">, </span>rawValidationData<span style="font-weight: bold">)
+        </span>testData <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span>featureFunction<span style="font-weight: bold">, </span>rawTestData<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">except</span><span style="font-weight: bold">:
+        </span>display<span style="font-weight: bold">(</span><span style="color: red">"An exception was raised while extracting basic features: \n %s" </span><span style="font-weight: bold">% </span>getExceptionTraceBack<span style="font-weight: bold">())
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>rawTrainingData<span style="font-weight: bold">, </span>rawValidationData<span style="font-weight: bold">, </span>testData<span style="font-weight: bold">, </span>testLabels<span style="font-weight: bold">, </span>rawTestData<span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">def </span>readSuicideData<span style="font-weight: bold">(</span>trainingSize<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">):
+    </span>rootdata <span style="font-weight: bold">= </span><span style="color: red">'pacmandata'
+    </span>rawTrainingData<span style="font-weight: bold">, </span>trainingLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadPacmanData<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'/suicide_training.pkl'</span><span style="font-weight: bold">, </span>trainingSize<span style="font-weight: bold">)
+    </span>rawValidationData<span style="font-weight: bold">, </span>validationLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadPacmanData<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'/suicide_validation.pkl'</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">)
+    </span>rawTestData<span style="font-weight: bold">, </span>testLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadPacmanData<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'/suicide_test.pkl'</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">)
+    </span>trainingData <span style="font-weight: bold">= []
+    </span>validationData <span style="font-weight: bold">= []
+    </span>testData <span style="font-weight: bold">= []
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>rawTrainingData<span style="font-weight: bold">, </span>rawValidationData<span style="font-weight: bold">, </span>testData<span style="font-weight: bold">, </span>testLabels<span style="font-weight: bold">, </span>rawTestData<span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">def </span>readContestData<span style="font-weight: bold">(</span>trainingSize<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">):
+    </span>rootdata <span style="font-weight: bold">= </span><span style="color: red">'pacmandata'
+    </span>rawTrainingData<span style="font-weight: bold">, </span>trainingLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadPacmanData<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'/contest_training.pkl'</span><span style="font-weight: bold">, </span>trainingSize<span style="font-weight: bold">)
+    </span>rawValidationData<span style="font-weight: bold">, </span>validationLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadPacmanData<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'/contest_validation.pkl'</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">)
+    </span>rawTestData<span style="font-weight: bold">, </span>testLabels <span style="font-weight: bold">= </span>samples<span style="font-weight: bold">.</span>loadPacmanData<span style="font-weight: bold">(</span>rootdata <span style="font-weight: bold">+ </span><span style="color: red">'/contest_test.pkl'</span><span style="font-weight: bold">, </span>testSize<span style="font-weight: bold">)
+    </span>trainingData <span style="font-weight: bold">= []
+    </span>validationData <span style="font-weight: bold">= []
+    </span>testData <span style="font-weight: bold">= []
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>rawTrainingData<span style="font-weight: bold">, </span>rawValidationData<span style="font-weight: bold">, </span>testData<span style="font-weight: bold">, </span>testLabels<span style="font-weight: bold">, </span>rawTestData<span style="font-weight: bold">)
+
+
+</span>smallDigitData <span style="font-weight: bold">= </span>readDigitData<span style="font-weight: bold">(</span><span style="color: red">20</span><span style="font-weight: bold">)
+</span>bigDigitData <span style="font-weight: bold">= </span>readDigitData<span style="font-weight: bold">(</span><span style="color: red">1000</span><span style="font-weight: bold">)
+
+</span>suicideData <span style="font-weight: bold">= </span>readSuicideData<span style="font-weight: bold">(</span><span style="color: red">1000</span><span style="font-weight: bold">)
+</span>contestData <span style="font-weight: bold">= </span>readContestData<span style="font-weight: bold">(</span><span style="color: red">1000</span><span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">def </span>tinyDataSet<span style="font-weight: bold">():
+    </span><span style="color: blue; font-weight: bold">def </span>count<span style="font-weight: bold">(</span>m<span style="font-weight: bold">,</span>b<span style="font-weight: bold">,</span>h<span style="font-weight: bold">):
+        </span>c <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>Counter<span style="font-weight: bold">()</span>;
+        c<span style="font-weight: bold">[</span><span style="color: red">'m'</span><span style="font-weight: bold">] = </span>m;
+        c<span style="font-weight: bold">[</span><span style="color: red">'b'</span><span style="font-weight: bold">] = </span>b;
+        c<span style="font-weight: bold">[</span><span style="color: red">'h'</span><span style="font-weight: bold">] = </span>h;
+        <span style="color: blue; font-weight: bold">return </span>c;
+
+    training <span style="font-weight: bold">= [</span>count<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">)]
+    </span>trainingLabels <span style="font-weight: bold">= [</span><span style="color: red">1</span><span style="font-weight: bold">,        </span><span style="color: red">1</span><span style="font-weight: bold">,            </span><span style="color: red">1           </span><span style="font-weight: bold">, </span><span style="color: red">1           </span><span style="font-weight: bold">,      -</span><span style="color: red">1     </span><span style="font-weight: bold">,      -</span><span style="color: red">1</span><span style="font-weight: bold">]
+
+    </span>validation <span style="font-weight: bold">= [</span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">)]
+    </span>validationLabels <span style="font-weight: bold">= [ </span><span style="color: red">1</span><span style="font-weight: bold">]
+
+    </span>test <span style="font-weight: bold">= [</span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">)]
+    </span>testLabels <span style="font-weight: bold">= [-</span><span style="color: red">1</span><span style="font-weight: bold">]
+
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>training<span style="font-weight: bold">,</span>trainingLabels<span style="font-weight: bold">,</span>validation<span style="font-weight: bold">,</span>validationLabels<span style="font-weight: bold">,</span>test<span style="font-weight: bold">,</span>testLabels<span style="font-weight: bold">)</span>;
+
+
+<span style="color: blue; font-weight: bold">def </span>tinyDataSetPeceptronAndMira<span style="font-weight: bold">():
+    </span><span style="color: blue; font-weight: bold">def </span>count<span style="font-weight: bold">(</span>m<span style="font-weight: bold">,</span>b<span style="font-weight: bold">,</span>h<span style="font-weight: bold">):
+        </span>c <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>Counter<span style="font-weight: bold">()</span>;
+        c<span style="font-weight: bold">[</span><span style="color: red">'m'</span><span style="font-weight: bold">] = </span>m;
+        c<span style="font-weight: bold">[</span><span style="color: red">'b'</span><span style="font-weight: bold">] = </span>b;
+        c<span style="font-weight: bold">[</span><span style="color: red">'h'</span><span style="font-weight: bold">] = </span>h;
+        <span style="color: blue; font-weight: bold">return </span>c;
+
+    training <span style="font-weight: bold">= [</span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), </span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">)]
+    </span>trainingLabels <span style="font-weight: bold">= [</span><span style="color: red">1</span><span style="font-weight: bold">,            </span><span style="color: red">1</span><span style="font-weight: bold">,            </span><span style="color: red">1</span><span style="font-weight: bold">,          -</span><span style="color: red">1      </span><span style="font-weight: bold">,      -</span><span style="color: red">1</span><span style="font-weight: bold">]
+
+    </span>validation <span style="font-weight: bold">= [</span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">)]
+    </span>validationLabels <span style="font-weight: bold">= [ </span><span style="color: red">1</span><span style="font-weight: bold">]
+
+    </span>test <span style="font-weight: bold">= [</span>count<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">)]
+    </span>testLabels <span style="font-weight: bold">= [-</span><span style="color: red">1</span><span style="font-weight: bold">]
+
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>training<span style="font-weight: bold">,</span>trainingLabels<span style="font-weight: bold">,</span>validation<span style="font-weight: bold">,</span>validationLabels<span style="font-weight: bold">,</span>test<span style="font-weight: bold">,</span>testLabels<span style="font-weight: bold">)</span>;
+
+
+DATASETS <span style="font-weight: bold">= {
+    </span><span style="color: red">"smallDigitData"</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span>smallDigitData<span style="font-weight: bold">,
+    </span><span style="color: red">"bigDigitData"</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span>bigDigitData<span style="font-weight: bold">,
+    </span><span style="color: red">"tinyDataSet"</span><span style="font-weight: bold">: </span>tinyDataSet<span style="font-weight: bold">,
+    </span><span style="color: red">"tinyDataSetPeceptronAndMira"</span><span style="font-weight: bold">: </span>tinyDataSetPeceptronAndMira<span style="font-weight: bold">,
+    </span><span style="color: red">"suicideData"</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span>suicideData<span style="font-weight: bold">,
+    </span><span style="color: red">"contestData"</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span>contestData
+<span style="font-weight: bold">}
+
+</span>DATASETS_LEGAL_LABELS <span style="font-weight: bold">= {
+    </span><span style="color: red">"smallDigitData"</span><span style="font-weight: bold">: </span>range<span style="font-weight: bold">(</span><span style="color: red">10</span><span style="font-weight: bold">),
+    </span><span style="color: red">"bigDigitData"</span><span style="font-weight: bold">: </span>range<span style="font-weight: bold">(</span><span style="color: red">10</span><span style="font-weight: bold">),
+    </span><span style="color: red">"tinyDataSet"</span><span style="font-weight: bold">: [-</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">],
+    </span><span style="color: red">"tinyDataSetPeceptronAndMira"</span><span style="font-weight: bold">: [-</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">],
+    </span><span style="color: red">"suicideData"</span><span style="font-weight: bold">: [</span><span style="color: red">"EAST"</span><span style="font-weight: bold">, </span><span style="color: red">'WEST'</span><span style="font-weight: bold">, </span><span style="color: red">'NORTH'</span><span style="font-weight: bold">, </span><span style="color: red">'SOUTH'</span><span style="font-weight: bold">, </span><span style="color: red">'STOP'</span><span style="font-weight: bold">],
+    </span><span style="color: red">"contestData"</span><span style="font-weight: bold">: [</span><span style="color: red">"EAST"</span><span style="font-weight: bold">, </span><span style="color: red">'WEST'</span><span style="font-weight: bold">, </span><span style="color: red">'NORTH'</span><span style="font-weight: bold">, </span><span style="color: red">'SOUTH'</span><span style="font-weight: bold">, </span><span style="color: red">'STOP'</span><span style="font-weight: bold">]
+}
+
+
+</span><span style="color: green; font-style: italic"># Test classes
+# ------------
+
+</span><span style="color: blue; font-weight: bold">def </span>getAccuracy<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>classifier<span style="font-weight: bold">, </span>featureFunction<span style="font-weight: bold">=</span>dataClassifier<span style="font-weight: bold">.</span>basicFeatureExtractorDigit<span style="font-weight: bold">):
+    </span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>rawTrainingData<span style="font-weight: bold">, </span>rawValidationData<span style="font-weight: bold">, </span>testData<span style="font-weight: bold">, </span>testLabels<span style="font-weight: bold">, </span>rawTestData <span style="font-weight: bold">= </span>data
+    <span style="color: blue; font-weight: bold">if </span>featureFunction <span style="font-weight: bold">!= </span>dataClassifier<span style="font-weight: bold">.</span>basicFeatureExtractorDigit<span style="font-weight: bold">:
+        </span>trainingData <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span>featureFunction<span style="font-weight: bold">, </span>rawTrainingData<span style="font-weight: bold">)
+        </span>validationData <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span>featureFunction<span style="font-weight: bold">, </span>rawValidationData<span style="font-weight: bold">)
+        </span>testData <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span>featureFunction<span style="font-weight: bold">, </span>rawTestData<span style="font-weight: bold">)
+    </span>classifier<span style="font-weight: bold">.</span>train<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">)
+    </span>guesses <span style="font-weight: bold">= </span>classifier<span style="font-weight: bold">.</span>classify<span style="font-weight: bold">(</span>testData<span style="font-weight: bold">)
+    </span>correct <span style="font-weight: bold">= [</span>guesses<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] == </span>testLabels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>testLabels<span style="font-weight: bold">))].</span>count<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+    </span>acc <span style="font-weight: bold">= </span><span style="color: red">100.0 </span><span style="font-weight: bold">* </span>correct <span style="font-weight: bold">/ </span>len<span style="font-weight: bold">(</span>testLabels<span style="font-weight: bold">)
+    </span>serialized_guesses <span style="font-weight: bold">= </span><span style="color: red">", "</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">([</span>str<span style="font-weight: bold">(</span>guesses<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]) </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>testLabels<span style="font-weight: bold">))])
+    </span><span style="color: blue; font-weight: bold">print </span>str<span style="font-weight: bold">(</span>correct<span style="font-weight: bold">), (</span><span style="color: red">"correct out of " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>testLabels<span style="font-weight: bold">)) + </span><span style="color: red">" (%.1f%%)."</span><span style="font-weight: bold">) % (</span>acc<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>acc<span style="font-weight: bold">, </span>serialized_guesses
+
+
+<span style="color: blue; font-weight: bold">class </span>GradeClassifierTest<span style="font-weight: bold">(</span>testClasses<span style="font-weight: bold">.</span>TestCase<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">):
+        </span>super<span style="font-weight: bold">(</span>GradeClassifierTest<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">).</span>__init__<span style="font-weight: bold">(</span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">)
+
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifierModule <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'classifierModule'</span><span style="font-weight: bold">]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifierClass <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'classifierClass'</span><span style="font-weight: bold">]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>datasetName <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'datasetName'</span><span style="font-weight: bold">]
+
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyScale <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>testDict<span style="font-weight: bold">[</span><span style="color: red">'accuracyScale'</span><span style="font-weight: bold">])
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyThresholds <span style="font-weight: bold">= [</span>int<span style="font-weight: bold">(</span>s<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>s <span style="color: blue; font-weight: bold">in </span>testDict<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span><span style="color: red">'accuracyThresholds'</span><span style="font-weight: bold">,</span><span style="color: red">''</span><span style="font-weight: bold">).</span>split<span style="font-weight: bold">()]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>exactOutput <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'exactOutput'</span><span style="font-weight: bold">].</span>lower<span style="font-weight: bold">() == </span><span style="color: red">"true"
+
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>automaticTuning <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'automaticTuning'</span><span style="font-weight: bold">].</span>lower<span style="font-weight: bold">() == </span><span style="color: red">"true" </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'automaticTuning' </span><span style="color: blue; font-weight: bold">in </span>testDict <span style="color: blue; font-weight: bold">else </span><span style="color: blue">None
+        self</span><span style="font-weight: bold">.</span>max_iterations <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>testDict<span style="font-weight: bold">[</span><span style="color: red">'max_iterations'</span><span style="font-weight: bold">]) </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'max_iterations' </span><span style="color: blue; font-weight: bold">in </span>testDict <span style="color: blue; font-weight: bold">else </span><span style="color: blue">None
+        self</span><span style="font-weight: bold">.</span>featureFunction <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'featureFunction'</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'featureFunction' </span><span style="color: blue; font-weight: bold">in </span>testDict <span style="color: blue; font-weight: bold">else </span><span style="color: red">'basicFeatureExtractorDigit'
+
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyThresholds<span style="font-weight: bold">) * </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyScale
+
+
+    <span style="color: blue; font-weight: bold">def </span>grade_classifier<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">):
+        </span>featureFunction <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>dataClassifier<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>featureFunction<span style="font-weight: bold">)
+        </span>data <span style="font-weight: bold">= </span>DATASETS<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>datasetName<span style="font-weight: bold">]()
+        </span>legalLabels <span style="font-weight: bold">= </span>DATASETS_LEGAL_LABELS<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>datasetName<span style="font-weight: bold">]
+
+        </span>classifierClass <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>moduleDict<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifierModule<span style="font-weight: bold">], </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifierClass<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>classifier <span style="font-weight: bold">= </span>classifierClass<span style="font-weight: bold">(</span>legalLabels<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>classifier <span style="font-weight: bold">= </span>classifierClass<span style="font-weight: bold">(</span>legalLabels<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>automaticTuning <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span>classifier<span style="font-weight: bold">.</span>automaticTuning <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>automaticTuning
+
+        <span style="color: blue; font-weight: bold">return </span>getAccuracy<span style="font-weight: bold">(</span>data<span style="font-weight: bold">, </span>classifier<span style="font-weight: bold">, </span>featureFunction<span style="font-weight: bold">=</span>featureFunction<span style="font-weight: bold">)
+
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">):
+        </span>accuracy<span style="font-weight: bold">, </span>guesses <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>grade_classifier<span style="font-weight: bold">(</span>moduleDict<span style="font-weight: bold">)
+
+        </span><span style="color: green; font-style: italic"># Either grade them on the accuracy of their classifer,
+        # or their exact
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>exactOutput<span style="font-weight: bold">:
+            </span>gold_guesses <span style="font-weight: bold">= </span>solutionDict<span style="font-weight: bold">[</span><span style="color: red">'guesses'</span><span style="font-weight: bold">]
+            </span><span style="color: blue; font-weight: bold">if </span>guesses <span style="font-weight: bold">== </span>gold_guesses<span style="font-weight: bold">:
+                </span>totalPoints <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints
+            <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"Incorrect classification after training:"</span><span style="font-weight: bold">)
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"  student classifications: " </span><span style="font-weight: bold">+ </span>guesses<span style="font-weight: bold">)
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"  correct classifications: " </span><span style="font-weight: bold">+ </span>gold_guesses<span style="font-weight: bold">)
+                </span>totalPoints <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span><span style="color: green; font-style: italic"># Grade accuracy
+            </span>totalPoints <span style="font-weight: bold">= </span><span style="color: red">0
+            </span><span style="color: blue; font-weight: bold">for </span>threshold <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyThresholds<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>accuracy <span style="font-weight: bold">&gt;= </span>threshold<span style="font-weight: bold">:
+                    </span>totalPoints <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyScale
+
+            <span style="color: green; font-style: italic"># Print grading schedule
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"%s correct (%s of %s points)" </span><span style="font-weight: bold">% (</span>accuracy<span style="font-weight: bold">, </span>totalPoints<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints<span style="font-weight: bold">))
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"    Grading scheme:"</span><span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"     &lt; %s:  0 points" </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyThresholds<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">],))
+            </span><span style="color: blue; font-weight: bold">for </span>idx<span style="font-weight: bold">, </span>threshold <span style="color: blue; font-weight: bold">in </span>enumerate<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyThresholds<span style="font-weight: bold">):
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"    &gt;= %s:  %s points" </span><span style="font-weight: bold">% (</span>threshold<span style="font-weight: bold">, (</span>idx<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">)*</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accuracyScale<span style="font-weight: bold">))
+
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testPartial<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">, </span>totalPoints<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>writeSolution<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>filePath<span style="font-weight: bold">):
+        </span>handle <span style="font-weight: bold">= </span>open<span style="font-weight: bold">(</span>filePath<span style="font-weight: bold">, </span><span style="color: red">'w'</span><span style="font-weight: bold">)
+        </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">'# This is the solution file for %s.\n' </span><span style="font-weight: bold">% </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path<span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>exactOutput<span style="font-weight: bold">:
+            </span>_<span style="font-weight: bold">, </span>guesses <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>grade_classifier<span style="font-weight: bold">(</span>moduleDict<span style="font-weight: bold">)
+            </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">'guesses: "%s"' </span><span style="font-weight: bold">% (</span>guesses<span style="font-weight: bold">,))
+
+        </span>handle<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">return True
+
+
+
+
+class </span>MultipleChoiceTest<span style="font-weight: bold">(</span>testClasses<span style="font-weight: bold">.</span>TestCase<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">):
+        </span>super<span style="font-weight: bold">(</span>MultipleChoiceTest<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">).</span>__init__<span style="font-weight: bold">(</span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ans <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'result'</span><span style="font-weight: bold">]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>question <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'question'</span><span style="font-weight: bold">]
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">):
+        </span>studentSolution <span style="font-weight: bold">= </span>str<span style="font-weight: bold">(</span>getattr<span style="font-weight: bold">(</span>moduleDict<span style="font-weight: bold">[</span><span style="color: red">'answers'</span><span style="font-weight: bold">], </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>question<span style="font-weight: bold">)())
+        </span>encryptedSolution <span style="font-weight: bold">= </span>sha1<span style="font-weight: bold">(</span>studentSolution<span style="font-weight: bold">.</span>strip<span style="font-weight: bold">().</span>lower<span style="font-weight: bold">()).</span>hexdigest<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">if </span>encryptedSolution <span style="font-weight: bold">== </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ans<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testPass<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"Solution is not correct."</span><span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">"Student solution: %s" </span><span style="font-weight: bold">% </span>studentSolution<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testFail<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>writeSolution<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>filePath<span style="font-weight: bold">):
+        </span>handle <span style="font-weight: bold">= </span>open<span style="font-weight: bold">(</span>filePath<span style="font-weight: bold">, </span><span style="color: red">'w'</span><span style="font-weight: bold">)
+        </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">'# This is the solution file for %s.\n' </span><span style="font-weight: bold">% </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path<span style="font-weight: bold">)
+        </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">'# File intentionally blank.\n'</span><span style="font-weight: bold">)
+        </span>handle<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">return True
+
+
+</span>
+  </pre>
+  </body>
+  </html>
+  

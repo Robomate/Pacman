@@ -1,0 +1,21 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+
+# Python code for the test below.
+preamble: """
+import linearLearning
+
+ans1 = linearLearning.der_quadLoss_dx(.73, 1.56)
+ans2 = linearLearning.der_quadLoss_dx(-5, 24)
+ans3 = linearLearning.der_quadLoss_dx(0, -42)
+
+
+ans = sum([ans1, ans2, ans3])
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+

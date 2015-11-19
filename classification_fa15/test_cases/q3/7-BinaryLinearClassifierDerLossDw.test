@@ -1,0 +1,54 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+partialPoints: "1"
+
+# Python code for the test below.
+preamble: """
+import linearLearning
+import numpy as np
+
+regression = linearLearning.BinaryLinearClassifier([0, 1], 20)
+
+regression.weights = np.zeros(2)
+
+regression.weights[0] = 5
+regression.weights[1] = -3
+x = np.array([7, 1])
+y_true = 1
+ans1 = regression.der_loss_dw(x, y_true, regression.weights)
+
+regression.weights[0] = 9
+regression.weights[1] = 1
+x = np.array([-3, 5] )
+y_true = 1
+ans2 = regression.der_loss_dw(x, y_true, regression.weights)
+
+regression.weights[0] = -1
+regression.weights[1] = -4
+x = np.array([8, 0] )
+y_true = 0
+ans3 = regression.der_loss_dw(x, y_true, regression.weights)
+
+regression.weights[0] = 3
+regression.weights[1] = 3
+x = np.array([0, 6] )
+y_true = 1
+ans4 = regression.der_loss_dw(x, y_true, regression.weights)
+
+regression.weights[0] = 5
+regression.weights[1] = -3
+x = np.array([-4, 4] )
+y_true = 0
+ans5 = regression.der_loss_dw(x, y_true, regression.weights)
+
+
+ans = sum([ans1, ans2, ans3, ans4, ans5])
+
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+

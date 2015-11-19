@@ -1,0 +1,295 @@
+<html>
+  <head>
+  <title>grading.py</title>
+  </head>
+  <body>
+  <h3>grading.py (<a href="../grading.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># grading.py
+# ----------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+</span><span style="color: red">"Common code for autograders"
+
+</span><span style="color: blue; font-weight: bold">import </span>cgi
+<span style="color: blue; font-weight: bold">import </span>time
+<span style="color: blue; font-weight: bold">import </span>sys
+<span style="color: blue; font-weight: bold">import </span>traceback
+<span style="color: blue; font-weight: bold">import </span>pdb
+<span style="color: blue; font-weight: bold">from </span>collections <span style="color: blue; font-weight: bold">import </span>defaultdict
+<span style="color: blue; font-weight: bold">import </span>util
+
+<span style="color: blue; font-weight: bold">class </span>Grades<span style="font-weight: bold">:
+  </span><span style="color: red">"A data structure for project grades, along with formatting code to display them"
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>projectName<span style="font-weight: bold">, </span>questionsAndMaxesList<span style="font-weight: bold">, </span>edxOutput<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>muteOutput<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Defines the grading scheme for a project
+      projectName: project name
+      questionsAndMaxesDict: a list of (question name, max points per question)
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>questions <span style="font-weight: bold">= [</span>el<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>el <span style="color: blue; font-weight: bold">in </span>questionsAndMaxesList<span style="font-weight: bold">]
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes <span style="font-weight: bold">= </span>dict<span style="font-weight: bold">(</span>questionsAndMaxesList<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points <span style="font-weight: bold">= </span>Counter<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages <span style="font-weight: bold">= </span>dict<span style="font-weight: bold">([(</span>q<span style="font-weight: bold">, []) </span><span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>questions<span style="font-weight: bold">])
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>project <span style="font-weight: bold">= </span>projectName
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>start <span style="font-weight: bold">= </span>time<span style="font-weight: bold">.</span>localtime<span style="font-weight: bold">()[</span><span style="color: red">1</span><span style="font-weight: bold">:</span><span style="color: red">6</span><span style="font-weight: bold">]
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sane <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True </span><span style="color: green; font-style: italic"># Sanity checks
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion <span style="font-weight: bold">= </span><span style="color: blue">None </span><span style="color: green; font-style: italic"># Which question we're grading
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>edxOutput <span style="font-weight: bold">= </span>edxOutput
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>mute <span style="font-weight: bold">= </span>muteOutput
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>prereqs <span style="font-weight: bold">= </span>defaultdict<span style="font-weight: bold">(</span>set<span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic">#print 'Autograder transcript for %s' % self.project
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Starting on %d-%d at %d:%02d:%02d' </span><span style="font-weight: bold">% </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>start
+
+  <span style="color: blue; font-weight: bold">def </span>addPrereq<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>question<span style="font-weight: bold">, </span>prereq<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>prereqs<span style="font-weight: bold">[</span>question<span style="font-weight: bold">].</span>add<span style="font-weight: bold">(</span>prereq<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>grade<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>gradingModule<span style="font-weight: bold">, </span>exceptionMap <span style="font-weight: bold">= {}, </span>bonusPic <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Grades each question
+      gradingModule: the module with all the grading functions (pass in with sys.modules[__name__])
+    """
+
+    </span>completedQuestions <span style="font-weight: bold">= </span>set<span style="font-weight: bold">([])
+    </span><span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>questions<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\nQuestion %s' </span><span style="font-weight: bold">% </span>q
+      <span style="color: blue; font-weight: bold">print </span><span style="color: red">'=' </span><span style="font-weight: bold">* (</span><span style="color: red">9 </span><span style="font-weight: bold">+ </span>len<span style="font-weight: bold">(</span>q<span style="font-weight: bold">))
+      </span><span style="color: blue; font-weight: bold">print
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion <span style="font-weight: bold">= </span>q
+
+      incompleted <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>prereqs<span style="font-weight: bold">[</span>q<span style="font-weight: bold">].</span>difference<span style="font-weight: bold">(</span>completedQuestions<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>incompleted<span style="font-weight: bold">) &gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+          </span>prereq <span style="font-weight: bold">= </span>incompleted<span style="font-weight: bold">.</span>pop<span style="font-weight: bold">()
+          </span><span style="color: blue; font-weight: bold">print </span>\
+<span style="color: darkred">"""*** NOTE: Make sure to complete Question %s before working on Question %s,
+*** because Question %s builds upon your answer for Question %s.
+""" </span><span style="font-weight: bold">% (</span>prereq<span style="font-weight: bold">, </span>q<span style="font-weight: bold">, </span>q<span style="font-weight: bold">, </span>prereq<span style="font-weight: bold">)
+          </span><span style="color: blue; font-weight: bold">continue
+
+      if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>mute<span style="font-weight: bold">: </span>util<span style="font-weight: bold">.</span>mutePrint<span style="font-weight: bold">()
+      </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">:
+        </span>util<span style="font-weight: bold">.</span>TimeoutFunction<span style="font-weight: bold">(</span>getattr<span style="font-weight: bold">(</span>gradingModule<span style="font-weight: bold">, </span>q<span style="font-weight: bold">),</span><span style="color: red">300</span><span style="font-weight: bold">)(</span><span style="color: blue">self</span><span style="font-weight: bold">) </span><span style="color: green; font-style: italic"># Call the question's function
+        #TimeoutFunction(getattr(gradingModule, q),1200)(self) # Call the question's function
+      </span><span style="color: blue; font-weight: bold">except </span>Exception<span style="font-weight: bold">, </span>inst<span style="font-weight: bold">:
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addExceptionMessage<span style="font-weight: bold">(</span>q<span style="font-weight: bold">, </span>inst<span style="font-weight: bold">, </span>traceback<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addErrorHints<span style="font-weight: bold">(</span>exceptionMap<span style="font-weight: bold">, </span>inst<span style="font-weight: bold">, </span>q<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">])
+      </span><span style="color: blue; font-weight: bold">except</span><span style="font-weight: bold">:
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>fail<span style="font-weight: bold">(</span><span style="color: red">'FAIL: Terminated with a string exception.'</span><span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">finally</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>mute<span style="font-weight: bold">: </span>util<span style="font-weight: bold">.</span>unmutePrint<span style="font-weight: bold">()
+
+      </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span>q<span style="font-weight: bold">] &gt;= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">[</span>q<span style="font-weight: bold">]:
+        </span>completedQuestions<span style="font-weight: bold">.</span>add<span style="font-weight: bold">(</span>q<span style="font-weight: bold">)
+
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\n### Question %s: %d/%d ###\n' </span><span style="font-weight: bold">% (</span>q<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span>q<span style="font-weight: bold">], </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">[</span>q<span style="font-weight: bold">])
+
+
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\nFinished at %d:%02d:%02d' </span><span style="font-weight: bold">% </span>time<span style="font-weight: bold">.</span>localtime<span style="font-weight: bold">()[</span><span style="color: red">3</span><span style="font-weight: bold">:</span><span style="color: red">6</span><span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"\nProvisional grades\n=================="
+
+    </span><span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>questions<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Question %s: %d/%d' </span><span style="font-weight: bold">% (</span>q<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span>q<span style="font-weight: bold">], </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">[</span>q<span style="font-weight: bold">])
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'------------------'
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Total: %d/%d' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">.</span>totalCount<span style="font-weight: bold">(), </span>sum<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">.</span>values<span style="font-weight: bold">()))
+    </span><span style="color: blue; font-weight: bold">if </span>bonusPic <span style="color: blue; font-weight: bold">and </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">.</span>totalCount<span style="font-weight: bold">() == </span><span style="color: red">25</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: darkred">"""
+
+                     ALL HAIL GRANDPAC.
+              LONG LIVE THE GHOSTBUSTING KING.
+
+                  ---      ----      ---
+                  |  \    /  + \    /  |
+                  | + \--/      \--/ + |
+                  |   +     +          |
+                  | +     +        +   |
+                @@@@@@@@@@@@@@@@@@@@@@@@@@
+              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            \   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             \ /  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+              V   \   @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                   \ /  @@@@@@@@@@@@@@@@@@@@@@@@@@
+                    V     @@@@@@@@@@@@@@@@@@@@@@@@
+                            @@@@@@@@@@@@@@@@@@@@@@
+                    /\      @@@@@@@@@@@@@@@@@@@@@@
+                   /  \  @@@@@@@@@@@@@@@@@@@@@@@@@
+              /\  /    @@@@@@@@@@@@@@@@@@@@@@@@@@@
+             /  \ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            /    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                @@@@@@@@@@@@@@@@@@@@@@@@@@
+                    @@@@@@@@@@@@@@@@@@
+
+"""
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: darkred">"""
+Your grades are NOT yet registered.  To register your grades, make sure
+to follow your instructor's guidelines to receive credit on your project.
+"""
+
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>edxOutput<span style="font-weight: bold">:
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>produceOutput<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>addExceptionMessage<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>q<span style="font-weight: bold">, </span>inst<span style="font-weight: bold">, </span>traceback<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Method to format the exception message, this is more complicated because
+    we need to cgi.escape the traceback but wrap the exception in a &lt;pre&gt; tag
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>fail<span style="font-weight: bold">(</span><span style="color: red">'FAIL: Exception raised: %s' </span><span style="font-weight: bold">% </span>inst<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">''</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span>traceback<span style="font-weight: bold">.</span>format_exc<span style="font-weight: bold">().</span>split<span style="font-weight: bold">(</span><span style="color: red">'\n'</span><span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span>line<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>addErrorHints<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>exceptionMap<span style="font-weight: bold">, </span>errorInstance<span style="font-weight: bold">, </span>questionNum<span style="font-weight: bold">):
+    </span>typeOf <span style="font-weight: bold">= </span>str<span style="font-weight: bold">(</span>type<span style="font-weight: bold">(</span>errorInstance<span style="font-weight: bold">))
+    </span>questionName <span style="font-weight: bold">= </span><span style="color: red">'q' </span><span style="font-weight: bold">+ </span>questionNum
+    errorHint <span style="font-weight: bold">= </span><span style="color: red">''
+
+    </span><span style="color: green; font-style: italic"># question specific error hints
+    </span><span style="color: blue; font-weight: bold">if </span>exceptionMap<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span>questionName<span style="font-weight: bold">):
+      </span>questionMap <span style="font-weight: bold">= </span>exceptionMap<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span>questionName<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span>questionMap<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span>typeOf<span style="font-weight: bold">)):
+        </span>errorHint <span style="font-weight: bold">= </span>questionMap<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span>typeOf<span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># fall back to general error messages if a question specific
+    # one does not exist
+    </span><span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span>exceptionMap<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span>typeOf<span style="font-weight: bold">)):
+      </span>errorHint <span style="font-weight: bold">= </span>exceptionMap<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span>typeOf<span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># dont include the HTML if we have no error hint
+    </span><span style="color: blue; font-weight: bold">if not </span>errorHint<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">''
+
+    </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span>errorHint<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">'\n'</span><span style="font-weight: bold">):
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span>line<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>produceOutput<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span>edxOutput <span style="font-weight: bold">= </span>open<span style="font-weight: bold">(</span><span style="color: red">'edx_response.html'</span><span style="font-weight: bold">, </span><span style="color: red">'w'</span><span style="font-weight: bold">)
+    </span>edxOutput<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">"&lt;div&gt;"</span><span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># first sum
+    </span>total_possible <span style="font-weight: bold">= </span>sum<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">.</span>values<span style="font-weight: bold">())
+    </span>total_score <span style="font-weight: bold">= </span>sum<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">.</span>values<span style="font-weight: bold">())
+    </span>checkOrX <span style="font-weight: bold">= </span><span style="color: red">'&lt;span class="incorrect"/&gt;'
+    </span><span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span>total_score <span style="font-weight: bold">&gt;= </span>total_possible<span style="font-weight: bold">):
+        </span>checkOrX <span style="font-weight: bold">= </span><span style="color: red">'&lt;span class="correct"/&gt;'
+    </span>header <span style="font-weight: bold">= </span><span style="color: darkred">"""
+        &lt;h3&gt;
+            Total score ({total_score} / {total_possible})
+        &lt;/h3&gt;
+    """</span><span style="font-weight: bold">.</span>format<span style="font-weight: bold">(</span>total_score <span style="font-weight: bold">= </span>total_score<span style="font-weight: bold">,
+      </span>total_possible <span style="font-weight: bold">= </span>total_possible<span style="font-weight: bold">,
+      </span>checkOrX <span style="font-weight: bold">= </span>checkOrX
+    <span style="font-weight: bold">)
+    </span>edxOutput<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span>header<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>questions<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>q<span style="font-weight: bold">) == </span><span style="color: red">2</span><span style="font-weight: bold">:
+          </span>name <span style="font-weight: bold">= </span>q<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]
+      </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+          </span>name <span style="font-weight: bold">= </span>q
+      checkOrX <span style="font-weight: bold">= </span><span style="color: red">'&lt;span class="incorrect"/&gt;'
+      </span><span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span>q<span style="font-weight: bold">] &gt;= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">[</span>q<span style="font-weight: bold">]):
+        </span>checkOrX <span style="font-weight: bold">= </span><span style="color: red">'&lt;span class="correct"/&gt;'
+      </span><span style="color: green; font-style: italic">#messages = '\n&lt;br/&gt;\n'.join(self.messages[q])
+      </span>messages <span style="font-weight: bold">= </span><span style="color: red">"&lt;pre&gt;%s&lt;/pre&gt;" </span><span style="font-weight: bold">% </span><span style="color: red">'\n'</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages<span style="font-weight: bold">[</span>q<span style="font-weight: bold">])
+      </span>output <span style="font-weight: bold">= </span><span style="color: darkred">"""
+        &lt;div class="test"&gt;
+          &lt;section&gt;
+          &lt;div class="shortform"&gt;
+            Question {q} ({points}/{max}) {checkOrX}
+          &lt;/div&gt;
+        &lt;div class="longform"&gt;
+          {messages}
+        &lt;/div&gt;
+        &lt;/section&gt;
+      &lt;/div&gt;
+      """</span><span style="font-weight: bold">.</span>format<span style="font-weight: bold">(</span>q <span style="font-weight: bold">= </span>name<span style="font-weight: bold">,
+        </span>max <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">[</span>q<span style="font-weight: bold">],
+        </span>messages <span style="font-weight: bold">= </span>messages<span style="font-weight: bold">,
+        </span>checkOrX <span style="font-weight: bold">= </span>checkOrX<span style="font-weight: bold">,
+        </span>points <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span>q<span style="font-weight: bold">]
+      )
+      </span><span style="color: green; font-style: italic"># print "*** output for Question %s " % q[1]
+      # print output
+      </span>edxOutput<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span>output<span style="font-weight: bold">)
+    </span>edxOutput<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">"&lt;/div&gt;"</span><span style="font-weight: bold">)
+    </span>edxOutput<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+    </span>edxOutput <span style="font-weight: bold">= </span>open<span style="font-weight: bold">(</span><span style="color: red">'edx_grade'</span><span style="font-weight: bold">, </span><span style="color: red">'w'</span><span style="font-weight: bold">)
+    </span>edxOutput<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span>str<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">.</span>totalCount<span style="font-weight: bold">()))
+    </span>edxOutput<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>fail<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>message<span style="font-weight: bold">, </span>raw<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span><span style="color: red">"Sets sanity check bit to false and outputs a message"
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sane <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span>message<span style="font-weight: bold">, </span>raw<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>assignZeroCredit<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion<span style="font-weight: bold">] = </span><span style="color: red">0
+
+  </span><span style="color: blue; font-weight: bold">def </span>addPoints<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>amt<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion<span style="font-weight: bold">] += </span>amt
+
+  <span style="color: blue; font-weight: bold">def </span>deductPoints<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>amt<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion<span style="font-weight: bold">] -= </span>amt
+
+  <span style="color: blue; font-weight: bold">def </span>assignFullCredit<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>message<span style="font-weight: bold">=</span><span style="color: red">""</span><span style="font-weight: bold">, </span>raw<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>points<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion<span style="font-weight: bold">] = </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxes<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">if </span>message <span style="font-weight: bold">!= </span><span style="color: red">""</span><span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span>message<span style="font-weight: bold">, </span>raw<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>addMessage<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>message<span style="font-weight: bold">, </span>raw<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if not </span>raw<span style="font-weight: bold">:
+        </span><span style="color: green; font-style: italic"># We assume raw messages, formatted for HTML, are printed separately
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>mute<span style="font-weight: bold">: </span>util<span style="font-weight: bold">.</span>unmutePrint<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'*** ' </span><span style="font-weight: bold">+ </span>message
+        <span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>mute<span style="font-weight: bold">: </span>util<span style="font-weight: bold">.</span>mutePrint<span style="font-weight: bold">()
+        </span>message <span style="font-weight: bold">= </span>cgi<span style="font-weight: bold">.</span>escape<span style="font-weight: bold">(</span>message<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>currentQuestion<span style="font-weight: bold">].</span>append<span style="font-weight: bold">(</span>message<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>addMessageToEmail<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>message<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"WARNING**** addMessageToEmail is deprecated %s" </span><span style="font-weight: bold">% </span>message
+    <span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span>message<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">'\n'</span><span style="font-weight: bold">):
+      </span><span style="color: blue; font-weight: bold">pass
+      </span><span style="color: green; font-style: italic">#print '%%% ' + line + ' %%%'
+      #self.messages[self.currentQuestion].append(line)
+
+
+
+
+
+</span><span style="color: blue; font-weight: bold">class </span>Counter<span style="font-weight: bold">(</span>dict<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  Dict with default 0
+  """
+  </span><span style="color: blue; font-weight: bold">def </span>__getitem__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>idx<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span>dict<span style="font-weight: bold">.</span>__getitem__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>idx<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">except </span>KeyError<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">0
+
+  </span><span style="color: blue; font-weight: bold">def </span>totalCount<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns the sum of counts for all keys.
+    """
+    </span><span style="color: blue; font-weight: bold">return </span>sum<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>values<span style="font-weight: bold">())
+
+</span>
+  </pre>
+  </body>
+  </html>
+  

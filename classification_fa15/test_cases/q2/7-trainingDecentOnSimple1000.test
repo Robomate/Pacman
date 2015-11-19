@@ -1,0 +1,8 @@
+class: "GradeRegressorTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+
+fname: "simple1000.npz"
+maxPoints: "1"
+numIter: "30"

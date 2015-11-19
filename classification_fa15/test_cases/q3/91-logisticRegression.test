@@ -1,0 +1,13 @@
+class: "GradeClassifierTest"
+classifierModule: "linearLearning"
+classifierClass: "BinaryLinearClassifier"
+
+datasetName: "simple2D"
+
+max_iterations: "20"
+
+exactOutput: "True"
+accuracyScale: "1"
+accuracyThresholds: "99"
+
+

@@ -1,0 +1,27 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+partialPoints: "1"
+
+# Python code for the test below.
+preamble: """
+import linearLearning
+import numpy as np
+
+data = np.load("simple15.npz")
+x = data["data"]
+y = data["regressionResults"]
+regressor = linearLearning.LinearRegression()
+x = np.hstack((x[:,None], np.ones( (x.size,1) )))
+
+regressor.trainAnalytical(x, y)
+ans = regressor.weights
+
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+
+

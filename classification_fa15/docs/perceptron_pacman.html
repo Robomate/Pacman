@@ -1,0 +1,66 @@
+<html>
+  <head>
+  <title>perceptron_pacman.py</title>
+  </head>
+  <body>
+  <h3>perceptron_pacman.py (<a href="../perceptron_pacman.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># perceptron_pacman.py
+# --------------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# Perceptron implementation for apprenticeship learning
+</span><span style="color: blue; font-weight: bold">import </span>util
+<span style="color: blue; font-weight: bold">from </span>perceptron <span style="color: blue; font-weight: bold">import </span>PerceptronClassifier
+<span style="color: blue; font-weight: bold">from </span>pacman <span style="color: blue; font-weight: bold">import </span>GameState
+
+PRINT <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+
+
+class </span>PerceptronClassifierPacman<span style="font-weight: bold">(</span>PerceptronClassifier<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legalLabels<span style="font-weight: bold">, </span>maxIterations<span style="font-weight: bold">):
+        </span>PerceptronClassifier<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legalLabels<span style="font-weight: bold">, </span>maxIterations<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>Counter<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>classify<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>data <span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Data contains a list of (datum, legal moves)
+        
+        Datum is a Counter representing the features of each GameState.
+        legalMoves is a list of legal moves for that GameState.
+        """
+        </span>guesses <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>datum<span style="font-weight: bold">, </span>legalMoves <span style="color: blue; font-weight: bold">in </span>data<span style="font-weight: bold">:
+            </span>vectors <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>Counter<span style="font-weight: bold">()
+            </span><span style="color: blue; font-weight: bold">for </span>l <span style="color: blue; font-weight: bold">in </span>legalMoves<span style="font-weight: bold">:
+                </span>vectors<span style="font-weight: bold">[</span>l<span style="font-weight: bold">] = </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">* </span>datum<span style="font-weight: bold">[</span>l<span style="font-weight: bold">] </span><span style="color: green; font-style: italic">#changed from datum to datum[l]
+            </span>guesses<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>vectors<span style="font-weight: bold">.</span>argMax<span style="font-weight: bold">())
+        </span><span style="color: blue; font-weight: bold">return </span>guesses
+
+
+    <span style="color: blue; font-weight: bold">def </span>train<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels <span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>features <span style="font-weight: bold">= </span>trainingData<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">0</span><span style="font-weight: bold">][</span><span style="color: red">'Stop'</span><span style="font-weight: bold">].</span>keys<span style="font-weight: bold">() </span><span style="color: green; font-style: italic"># could be useful later
+        # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
+        # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
+
+        </span><span style="color: blue; font-weight: bold">for </span>iteration <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations<span style="font-weight: bold">):
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Starting iteration "</span><span style="font-weight: bold">, </span>iteration<span style="font-weight: bold">, </span><span style="color: red">"..."
+            </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">)):
+                </span><span style="color: red">"*** YOUR CODE HERE ***"
+                </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+</span>
+  </pre>
+  </body>
+  </html>
+  

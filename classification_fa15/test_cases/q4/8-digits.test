@@ -1,0 +1,12 @@
+class: "GradeClassifierTest"
+classifierModule: "linearLearning"
+classifierClass: "MulticlassLinearClassifier"
+
+datasetName: "bigDigitData"
+
+max_iterations: "30"
+
+## Our Code: 84%
+accuracyScale: "1"
+exactOutput: "True"
+accuracyThresholds: "78 84"

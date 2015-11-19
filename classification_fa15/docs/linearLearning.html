@@ -1,0 +1,648 @@
+<html>
+  <head>
+  <title>linearLearning.py</title>
+  </head>
+  <body>
+  <h3>linearLearning.py (<a href="../linearLearning.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># linearLearning.py
+# -----------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+#
+# Code for linear regression and linear classification
+#
+
+# import util
+</span><span style="color: blue; font-weight: bold">import </span>math
+<span style="color: green; font-style: italic"># import collections
+</span><span style="color: blue; font-weight: bold">import </span>numpy as np
+<span style="color: blue; font-weight: bold">import </span>plotUtil
+<span style="color: blue; font-weight: bold">import </span>pacmanPlot
+<span style="color: blue; font-weight: bold">import </span>graphicsUtils
+<span style="color: blue; font-weight: bold">import </span>random
+<span style="color: blue; font-weight: bold">import </span>util
+PRINT <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+
+def </span>quadLoss<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 1
+    
+    Quadtratic loss function. Takes a scalar input x and a scalar label y
+    and returns the square of the difference between them.
+
+    Note: Do NOT add a factor of 1/2 in front of this loss (as often seen 
+    with quadratic loss functions)    
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>der_quadLoss_dx<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 2
+    
+    Derivative of the quadtratic loss function (quadLoss) with respect to the scalar input x,
+    given the scalar label y.
+
+    Note: The quad loss function does NOT add a factor of 1/2 in front of that loss (as often seen 
+    with quadratic loss functions)
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>der_dot_dw<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 2
+    
+    The derivative of the dot product of arrays x and weights with respect to the
+    weights. Returns an array of the derivative with respect to each weights term
+    [der_dot_dw1, der_dot_dw2, ...]
+    
+    Hint: You may not need all of the input arguments.
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>stochasticGradientDescentUpdate<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">, </span>alpha<span style="font-weight: bold">, </span>der_loss_dw<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 2
+    
+    Implement the weight update equation for general stochastic gradient descent,
+    given a single data point, datum, and its label and a function for the derivative 
+    of the loss function with respect to the weights.
+    Returns the updated weights.
+    
+    datum: input data point
+    label: true label for data point
+    weights: current weight array
+    alpha: learning rate (gradient descent step size)
+    
+    der_loss_dw: Function for the derivative of the loss function with respect to the
+    weights. Function signature: der_loss_dw(datam, label, weights), returns an array 
+    of the derivative of the loss function with respect to each self.weights term
+    [der_loss_dw1, der_loss_dw2, ...]
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+    
+    </span><span style="color: blue; font-weight: bold">return </span>weights
+
+<span style="color: blue; font-weight: bold">def </span>sigmoid<span style="font-weight: bold">(</span>x<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 3
+    
+    Return the output of the sigmoid function with scalar input x.
+    
+    x: float input to function.
+
+    Note that this is just the sigmoid function and there are no dot
+    products with weights involved.
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>der_sigmoid_dx<span style="font-weight: bold">(</span>x<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 3
+    
+    Derivative of the sigmoid function with respect to input x.
+    Return the derivative evalutated at the input value x.
+    
+    x: float input to function
+    
+    Hint: Find (look-up) a form of the derivative that can take
+    advantage of the sigmoid function you already implemented.  
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>softmax<span style="font-weight: bold">(</span>x<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Question 4
+    
+    Softmax function that takes and array of N inputs and returns an array
+    N outputs.
+    
+    x: numpy ndarray with N entries
+    Returns: ndArray with N entries
+    
+    Hint: Please take advantage of the numpy.exp function that takes an numpy 
+    array with N inputs and applies the natural exponential function to each 
+    of them, returning an numpy array with the corresponding N output values.
+    
+    Note that this is just the sigmoid function and there are no dot
+    products with weights involved.
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>der_softmax_dx<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>i<span style="font-weight: bold">, </span>j<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    The (i,j) entry of the Jacobian of the softmax function, dy_i/dx_j
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>i <span style="font-weight: bold">== </span>j<span style="font-weight: bold">:
+        </span>y <span style="font-weight: bold">= </span>sigmoid<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+        </span><span style="color: blue; font-weight: bold">return </span>y<span style="font-weight: bold">*(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>y<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">-</span>sigmoid<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])*</span>sigmoid<span style="font-weight: bold">(</span>x<span style="font-weight: bold">[</span>j<span style="font-weight: bold">])
+
+</span><span style="color: blue; font-weight: bold">def </span>crossEntLoss<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>py<span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># Check if input is an array
+    </span><span style="color: blue; font-weight: bold">if </span>isinstance<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>np<span style="font-weight: bold">.</span>ndarray <span style="font-weight: bold">):
+        </span>loss <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>px<span style="font-weight: bold">,</span>py<span style="font-weight: bold">):
+            </span>loss <span style="font-weight: bold">+= -</span>y<span style="font-weight: bold">*</span>math<span style="font-weight: bold">.</span>log<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: green; font-style: italic"># For the scalar case, assume just two classes
+        </span>loss <span style="font-weight: bold">= -</span>py<span style="font-weight: bold">*</span>math<span style="font-weight: bold">.</span>log<span style="font-weight: bold">(</span>px<span style="font-weight: bold">)-(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>py<span style="font-weight: bold">)*</span>math<span style="font-weight: bold">.</span>log<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>px<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>loss
+
+<span style="color: blue; font-weight: bold">def </span>der_crossEntLoss_dx<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>py<span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># Check if input is an array
+    </span><span style="color: blue; font-weight: bold">if </span>isinstance<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>np<span style="font-weight: bold">.</span>ndarray <span style="font-weight: bold">):
+        </span>dloss <span style="font-weight: bold">= -</span>py<span style="font-weight: bold">*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>px
+    <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: green; font-style: italic"># For the scalar case, assume just two classes
+        </span>dloss <span style="font-weight: bold">= -</span>py<span style="font-weight: bold">*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>px<span style="font-weight: bold">-(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>py<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>px<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">return </span>dloss
+
+<span style="color: blue; font-weight: bold">def </span>crossEntLossLabel<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>label<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    The cross entropy loss assuming P(Y=label) = 1 or
+    if px is a scalar, we assume the case of binary variables
+    and label is zero or one
+    """
+    </span><span style="color: green; font-style: italic"># Check if input is an array
+    </span><span style="color: blue; font-weight: bold">if </span>isinstance<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>np<span style="font-weight: bold">.</span>ndarray <span style="font-weight: bold">):
+        </span>loss <span style="font-weight: bold">= -</span>math<span style="font-weight: bold">.</span>log<span style="font-weight: bold">(</span>px<span style="font-weight: bold">[</span>label<span style="font-weight: bold">])
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: green; font-style: italic"># For the scalar case, assume just two classes and px is P(y=1|x)
+        </span><span style="color: blue; font-weight: bold">if </span>label <span style="font-weight: bold">== </span><span style="color: red">1</span><span style="font-weight: bold">:
+            </span>loss <span style="font-weight: bold">= -</span>math<span style="font-weight: bold">.</span>log<span style="font-weight: bold">(</span>px<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>loss <span style="font-weight: bold">= -</span>math<span style="font-weight: bold">.</span>log<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>px<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">return </span>loss
+
+<span style="color: blue; font-weight: bold">def </span>der_crossEntLossLabel_dxlabel<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>label<span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># Check if input is an array
+    </span><span style="color: blue; font-weight: bold">if </span>isinstance<span style="font-weight: bold">(</span>px<span style="font-weight: bold">, </span>np<span style="font-weight: bold">.</span>ndarray <span style="font-weight: bold">):
+        </span>dloss <span style="font-weight: bold">= -</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>px<span style="font-weight: bold">[</span>label<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: green; font-style: italic"># For the scalar case, assume just two classes
+        </span>dloss <span style="font-weight: bold">= -</span>label<span style="font-weight: bold">*</span><span style="color: red">1.0</span><span style="font-weight: bold">/</span>px <span style="font-weight: bold">- (</span><span style="color: red">1</span><span style="font-weight: bold">-</span>label<span style="font-weight: bold">)*</span><span style="color: red">1.0</span><span style="font-weight: bold">/(</span><span style="color: red">1</span><span style="font-weight: bold">-</span>px<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">return </span>dloss
+
+<span style="color: blue; font-weight: bold">class </span>LinearRegression<span style="font-weight: bold">:
+    </span><span style="color: darkred">"""
+    Basic Least-squares Regression
+    """
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Linear regression initializing ...'
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: red">0.001
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>zeros<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setLearningRate<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>alpha<span style="font-weight: bold">):
+
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span>alpha
+
+    <span style="color: blue; font-weight: bold">def </span>trainAnalytical<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData_x<span style="font-weight: bold">, </span>trainingData_y<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 1
+        
+        Return the analytical solutions for the weights that minimize
+        the quadratic loss between the input trainingData_x and 
+        trainingData_y labels. 
+        
+        trainingData_x is a two dimensional (Nx2) array, where each row is a training point [x, 1].
+        trainingData_y is a one dimensional (Nx1) array containing the scalar output
+        label y for each training point
+        """
+
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>weights
+
+    <span style="color: blue; font-weight: bold">def </span>trainGradient<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData<span style="font-weight: bold">, </span>regressionData<span style="font-weight: bold">, </span>numIterations<span style="font-weight: bold">, </span>showPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">, </span>showPacmanPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Training with gradient ...'
+
+        </span><span style="color: blue; font-weight: bold">if </span>showPlot<span style="font-weight: bold">:
+            </span><span style="color: green; font-style: italic"># Initialize list to store loss per iteration for plotting later
+            </span>trainingLossPerIteration <span style="font-weight: bold">= []
+            
+            </span><span style="color: blue; font-weight: bold">if </span>showPacmanPlot<span style="font-weight: bold">:
+                </span>pacmanDisplay <span style="font-weight: bold">= </span>pacmanPlot<span style="font-weight: bold">.</span>PacmanPlotRegression<span style="font-weight: bold">()</span>;
+                pacmanDisplay<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>regressionData<span style="font-weight: bold">)
+                </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">0.1</span><span style="font-weight: bold">)
+            
+        </span><span style="color: green; font-style: italic"># Initializes weights to zero
+        </span>numDimensions <span style="font-weight: bold">= </span>trainingData<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">].</span>size
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>zeros<span style="font-weight: bold">(</span>numDimensions<span style="font-weight: bold">)
+        
+        </span><span style="color: green; font-style: italic"># Stochastic gradient descent
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>numIterations<span style="font-weight: bold">):
+            </span><span style="color: blue; font-weight: bold">if </span>i<span style="font-weight: bold">+</span><span style="color: red">1 </span><span style="font-weight: bold">% </span><span style="color: red">10 </span><span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Iteration " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>i<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">) + </span><span style="color: red">" of "</span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>numIterations<span style="font-weight: bold">)
+                
+            </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>regressionData<span style="font-weight: bold">):
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>stochasticGradientDescentUpdate<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>der_loss_dw<span style="font-weight: bold">)
+
+            </span><span style="color: blue; font-weight: bold">if </span>showPlot<span style="font-weight: bold">:
+                </span>trainingLoss <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>regressionLoss<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>regressionData<span style="font-weight: bold">)
+                </span>trainingLossPerIteration<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>trainingLoss<span style="font-weight: bold">)
+                
+                </span><span style="color: blue; font-weight: bold">if </span>showPacmanPlot<span style="font-weight: bold">:
+                    </span>pacmanDisplay<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">)
+                    </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">0.05</span><span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                    </span>plotUtil<span style="font-weight: bold">.</span>plotRegression<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">,</span>regressionData<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">)
+                    </span>plotUtil<span style="font-weight: bold">.</span>plotCurve<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>trainingLossPerIteration<span style="font-weight: bold">)), </span>trainingLossPerIteration<span style="font-weight: bold">, </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: red">"Training Loss"</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if </span>showPlot <span style="color: blue; font-weight: bold">and </span>showPacmanPlot<span style="font-weight: bold">:
+            </span>graphicsUtils<span style="font-weight: bold">.</span>end_graphics<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>regress<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>data<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Doing regression ...'
+
+        </span>numData <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span>data<span style="font-weight: bold">)
+        </span>regressionResults <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>zeros<span style="font-weight: bold">(</span>numData<span style="font-weight: bold">)
+
+        </span><span style="color: green; font-style: italic"># For each input x, predict y
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>i<span style="font-weight: bold">, </span>x<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>enumerate<span style="font-weight: bold">(</span>data<span style="font-weight: bold">):
+            </span>y <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>hypothesis<span style="font-weight: bold">([</span>x<span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">])
+            </span>regressionResults<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] = </span>y
+
+        <span style="color: blue; font-weight: bold">return </span>regressionResults
+    
+    <span style="color: blue; font-weight: bold">def </span>hypothesis<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 1
+        
+        Implement the linear regression hypothesis function. Given input array x, predict
+        the scalar output value y, using the current value of self.weights.
+        
+        x is an array of the same length as self.weights (both include the bias term)
+        """
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+        
+    </span><span style="color: blue; font-weight: bold">def </span>regressionLoss<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x_data<span style="font-weight: bold">, </span>y_data<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Average loss across many data points
+        """
+        </span>N <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span>x_data<span style="font-weight: bold">)
+        </span>totalLoss <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>x_data<span style="font-weight: bold">, </span>y_data<span style="font-weight: bold">):
+            </span>totalLoss <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>loss<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>totalLoss<span style="font-weight: bold">/</span>N
+    
+    <span style="color: blue; font-weight: bold">def </span>loss<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y_true<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 1
+        
+        Quadratic loss comparing y_true to the hypothesis for a single data point x
+        Returns a single float value for the loss
+        """
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+        
+    </span><span style="color: blue; font-weight: bold">def </span>der_loss_dw<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y_true<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 2
+        
+        Derivative of self.loss function with respect to self.weights, given a single data point x and
+        label y_true.
+        Returns an array of the derivative of the loss function with respect to each self.weights term
+        [der_loss_dw1, der_loss_dw2, ...]
+        """
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>BinaryLinearClassifier<span style="font-weight: bold">:
+    </span><span style="color: darkred">"""
+    Simple linear classifier.
+    """
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legalLabels<span style="font-weight: bold">, </span>max_iterations<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>type <span style="font-weight: bold">= </span><span style="color: red">"binaryLinear"
+        </span><span style="color: blue; font-weight: bold">assert </span>len<span style="font-weight: bold">(</span>legalLabels<span style="font-weight: bold">) == </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: red">"BinaryLinearClassifier requires number of legal labels to be exactly two"
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels <span style="font-weight: bold">= </span>legalLabels
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: red">0.1 </span><span style="color: green; font-style: italic"># Make sure this hard-coded value works (too large, things can blow up; too small, it takes forever)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations <span style="font-weight: bold">= </span>max_iterations
+
+    <span style="color: blue; font-weight: bold">def </span>train<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>showPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">, </span>showPacmanPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Stochastic gradient descent to learn self.weights
+        """
+        </span>numDimensions <span style="font-weight: bold">= </span>trainingData<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">].</span>size
+        
+        <span style="color: green; font-style: italic"># Initializes weights to zero
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>zeros<span style="font-weight: bold">(</span>numDimensions<span style="font-weight: bold">)
+        
+        </span><span style="color: blue; font-weight: bold">if </span>showPlot<span style="font-weight: bold">:
+            </span><span style="color: green; font-style: italic"># Initialize list to store loss per iteration for plotting later
+            </span>trainingLossPerIteration <span style="font-weight: bold">= []
+            </span><span style="color: green; font-style: italic"># Initial loss
+            </span>trainingLoss <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classificationLoss<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">)
+            </span>trainingLossPerIteration<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>trainingLoss<span style="font-weight: bold">)
+
+            </span><span style="color: green; font-style: italic"># Check for offset term
+            </span>plotDims <span style="font-weight: bold">= </span>numDimensions<span style="font-weight: bold">-</span><span style="color: red">1
+            </span><span style="color: blue; font-weight: bold">for </span>datum <span style="color: blue; font-weight: bold">in </span>trainingData<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>datum<span style="font-weight: bold">[-</span><span style="color: red">1</span><span style="font-weight: bold">] != </span><span style="color: red">1</span><span style="font-weight: bold">:
+                    </span>plotDims <span style="font-weight: bold">+= </span><span style="color: red">1
+                    </span><span style="color: blue; font-weight: bold">break
+                 
+            if </span>showPacmanPlot <span style="color: blue; font-weight: bold">and </span>plotDims <span style="font-weight: bold">&lt;=</span><span style="color: red">2</span><span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>plotDims <span style="font-weight: bold">== </span><span style="color: red">2</span><span style="font-weight: bold">:
+                    </span>pacmanDisplay <span style="font-weight: bold">= </span>pacmanPlot<span style="font-weight: bold">.</span>PacmanPlotClassification2D<span style="font-weight: bold">()</span>;
+                    pacmanDisplay<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">[:,:</span>plotDims<span style="font-weight: bold">], </span>trainingLabels<span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                    </span>pacmanDisplay <span style="font-weight: bold">= </span>pacmanPlot<span style="font-weight: bold">.</span>PacmanPlotLogisticRegression1D<span style="font-weight: bold">()</span>;
+                    pacmanDisplay<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">[:,</span><span style="color: red">0</span><span style="font-weight: bold">], </span>trainingLabels<span style="font-weight: bold">)
+
+                </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">0.1</span><span style="font-weight: bold">)
+            
+        </span><span style="color: green; font-style: italic"># Stochastic gradient descent
+        </span><span style="color: blue; font-weight: bold">for </span>itr <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations<span style="font-weight: bold">):
+                
+            </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">):
+                </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span>stochasticGradientDescentUpdate<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>der_loss_dw<span style="font-weight: bold">)
+
+            </span><span style="color: blue; font-weight: bold">if </span>showPlot<span style="font-weight: bold">:
+                </span>predictions <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classify<span style="font-weight: bold">(</span>validationData<span style="font-weight: bold">)
+                </span>accuracyCount <span style="font-weight: bold">= [</span>predictions<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] == </span>validationLabels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>validationLabels<span style="font-weight: bold">))].</span>count<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Performance on validation set for iteration= %d: (%.1f%%)" </span><span style="font-weight: bold">% (</span>itr<span style="font-weight: bold">, </span><span style="color: red">100.0</span><span style="font-weight: bold">*</span>accuracyCount<span style="font-weight: bold">/</span>len<span style="font-weight: bold">(</span>validationLabels<span style="font-weight: bold">))
+
+                </span>trainingLoss <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classificationLoss<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">)
+                </span>trainingLossPerIteration<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>trainingLoss<span style="font-weight: bold">)
+                
+                </span><span style="color: blue; font-weight: bold">if </span>plotDims <span style="font-weight: bold">&lt;= </span><span style="color: red">2</span><span style="font-weight: bold">:
+                    </span><span style="color: blue; font-weight: bold">if </span>showPacmanPlot<span style="font-weight: bold">:
+                        </span>pacmanDisplay<span style="font-weight: bold">.</span>setWeights<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">)
+                        </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">0.1</span><span style="font-weight: bold">)
+                    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                        </span><span style="color: blue; font-weight: bold">if </span>plotDims <span style="font-weight: bold">== </span><span style="color: red">2</span><span style="font-weight: bold">:
+                            </span>plotUtil<span style="font-weight: bold">.</span>plotClassification2D<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">[:,:</span>plotDims<span style="font-weight: bold">],</span>trainingLabels<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">)
+                        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                            </span>plotUtil<span style="font-weight: bold">.</span>plotLogisticRegression1D<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">[:,:</span>plotDims<span style="font-weight: bold">],</span>trainingLabels<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">)
+                </span>plotUtil<span style="font-weight: bold">.</span>plotCurve<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>trainingLossPerIteration<span style="font-weight: bold">)), </span>trainingLossPerIteration<span style="font-weight: bold">, </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: red">"Training Loss"</span><span style="font-weight: bold">)
+
+        </span><span style="color: blue; font-weight: bold">if </span>showPlot <span style="color: blue; font-weight: bold">and </span>showPacmanPlot<span style="font-weight: bold">:
+            </span>graphicsUtils<span style="font-weight: bold">.</span>end_graphics<span style="font-weight: bold">()
+
+
+    </span><span style="color: blue; font-weight: bold">def </span>classify<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>data <span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Classifies each datum by rounding the output of the hypothesis function to either 0 or 1.
+        """
+        </span>predicted_labels <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>data<span style="font-weight: bold">:
+            </span>y <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>hypothesis<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)
+            </span>predicted_label <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">[</span>int<span style="font-weight: bold">(</span>round<span style="font-weight: bold">(</span>y<span style="font-weight: bold">))]
+            </span>predicted_labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>predicted_label<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>predicted_labels
+
+    <span style="color: blue; font-weight: bold">def </span>hypothesis<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 3
+        
+        Implement the logistic regresssion hypothesis function (dot product
+        of input and weights passed to a sigmoid function).
+        In other words, given input array x and your current self.weights, return the 
+        probability that x belongs to class 1 (rather than class 0).
+        
+        x: is an array of the same length as self.weights
+        Returns a scalar between 0.0 and 1.0
+        Note: No need to worry about a bias term. If one exists, it 
+        has already been included in both x and self.weights.
+        """
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>classificationLoss<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x_data<span style="font-weight: bold">, </span>y_data<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Average loss across many data points
+        """
+        </span>N <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span>x_data<span style="font-weight: bold">)
+        </span>totalLoss <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>x_data<span style="font-weight: bold">, </span>y_data<span style="font-weight: bold">):
+            </span>totalLoss <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>loss<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>totalLoss<span style="font-weight: bold">/</span>N
+    
+    <span style="color: blue; font-weight: bold">def </span>loss<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y_true<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 3
+        
+        Quadratic loss comparing label y_true to the hypothesis for a single data point x
+        Returns a single float value for the loss
+        """
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>der_loss_dw<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y_true<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 3
+        
+        Derivative of self.loss function with respect to the input weights, given a single data point x and
+        label y_true.
+        Returns an array of the derivative of the loss function with respect to each input weights term
+        [der_loss_dw1, der_loss_dw2, ...]
+        
+        Hint: There are three functions involved in the complete loss function (quadLoss, sigmoid, dot product).
+        You have already implemented the derivatives for these three functions with respect to their inputs.
+        You should be able to use the chain rule and these derivative functions.
+        
+        Another hint: To implement the hint above, you may need to first compute the input to each of the
+        three functions involved in the complete loss function. For example, if you wanted to use der_sigmoid_dx,
+        what value would you need to pass as input to that function?
+        """
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>MulticlassLinearClassifier<span style="font-weight: bold">:
+    </span><span style="color: darkred">"""
+    Simple multiclass linear classifier.
+    """
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legalLabels<span style="font-weight: bold">, </span>max_iterations<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>type <span style="font-weight: bold">= </span><span style="color: red">"multiclassLinear"
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels <span style="font-weight: bold">= </span>legalLabels
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>labelIndex <span style="font-weight: bold">= {}
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>legalLabels<span style="font-weight: bold">)):
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>labelIndex<span style="font-weight: bold">[</span>legalLabels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]] = </span>i
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: red">0.01 </span><span style="color: green; font-style: italic"># Make sure this hard-coded value works (too large, things can blow up; too small, it takes forever)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations <span style="font-weight: bold">= </span>max_iterations
+
+    <span style="color: blue; font-weight: bold">def </span>train<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>showPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">, </span>showPacmanPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Stochastic gradient descent to learn self.weights
+        """
+        </span>numDimensions <span style="font-weight: bold">= </span>trainingData<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">].</span>size
+        
+        <span style="color: blue; font-weight: bold">if </span>showPlot<span style="font-weight: bold">:
+            </span><span style="color: green; font-style: italic"># Initialize list to store loss per iteration for plotting later
+            </span>trainingLossPerIteration <span style="font-weight: bold">= []
+                        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">)):
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>np<span style="font-weight: bold">.</span>zeros<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">])))
+        
+        </span><span style="color: green; font-style: italic"># Stochastic gradient descent
+        </span><span style="color: blue; font-weight: bold">for </span>itr <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations<span style="font-weight: bold">):
+                
+            </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">):
+                </span><span style="color: green; font-style: italic"># We have a list of arrays of weights here, instead of a matrix,
+                # so we end up looping over labels
+                </span>dw <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>der_loss_dw<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">for </span>j <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">)):
+                    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">[</span>j<span style="font-weight: bold">] = </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights<span style="font-weight: bold">[</span>j<span style="font-weight: bold">] - </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">*</span>dw<span style="font-weight: bold">[</span>j<span style="font-weight: bold">]
+
+            </span><span style="color: blue; font-weight: bold">if </span>showPlot<span style="font-weight: bold">:
+                </span>predictions <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classify<span style="font-weight: bold">(</span>validationData<span style="font-weight: bold">)
+                </span>accuracyCount <span style="font-weight: bold">= [</span>predictions<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] == </span>validationLabels<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>validationLabels<span style="font-weight: bold">))].</span>count<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Performance on validation set for iteration= %d: (%.1f%%)" </span><span style="font-weight: bold">% (</span>itr<span style="font-weight: bold">, </span><span style="color: red">100.0</span><span style="font-weight: bold">*</span>accuracyCount<span style="font-weight: bold">/</span>len<span style="font-weight: bold">(</span>validationLabels<span style="font-weight: bold">))
+
+                </span>trainingLoss <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classificationLoss<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">)
+                </span>trainingLossPerIteration<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>trainingLoss<span style="font-weight: bold">)
+                
+                </span>plotUtil<span style="font-weight: bold">.</span>plotCurve<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>trainingLossPerIteration<span style="font-weight: bold">)), </span>trainingLossPerIteration<span style="font-weight: bold">, </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: red">"Training Loss"</span><span style="font-weight: bold">)
+
+
+    </span><span style="color: blue; font-weight: bold">def </span>classify<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>data <span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Classifies each datum as the label corresponding to the index of the maximum value in the
+        hypothesis output array.
+        """
+        </span>predicted_labels <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>data<span style="font-weight: bold">:
+            </span>y <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>hypothesis<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)
+            </span>bestLabelIndex <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>argmax<span style="font-weight: bold">(</span>y<span style="font-weight: bold">)
+            </span>bestLabel <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">[</span>bestLabelIndex<span style="font-weight: bold">]
+            </span>predicted_labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>bestLabel<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>predicted_labels
+
+    <span style="color: blue; font-weight: bold">def </span>hypothesis<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Question 4
+        
+        Implement the softmax regresssion hypothesis function.
+        Specifically, for each possible label, compute the dot product of the data and weights for 
+        that label. Then we pass the output of each of those dot products into the softmax function.
+        The function will return the output of that softmax function call, which is an array of
+        values between 0.0 and 1.0 for each possible label.
+        
+        For this multiclass classification, self.weights is actually a list, where self.weights[i] 
+        is the array of weights for the i-th possible label.
+        
+        x: is an array of the same length as each of the self.weights[i]
+        Returns an array of values between 0.0 and 1.0; one value for each posible label
+        Note: No need to worry about a bias term. If one exists, it 
+        has already been included in both x and self.weights[i].
+        """
+        </span>numClasses <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">)
+
+        </span><span style="color: red">"*** YOUR CODE HERE ***"
+        </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>classificationLoss<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x_data<span style="font-weight: bold">, </span>y_data<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Average loss across many data points
+        """
+        </span>N <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span>x_data<span style="font-weight: bold">)
+        </span>totalLoss <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue; font-weight: bold">for </span><span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>x_data<span style="font-weight: bold">, </span>y_data<span style="font-weight: bold">):
+            </span>totalLoss <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>loss<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>totalLoss<span style="font-weight: bold">/</span>N
+    
+    <span style="color: blue; font-weight: bold">def </span>loss<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y_true<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Cross entropy loss comparing label y_true to the hypothesis for a single data point x
+        Returns a single float value for the loss
+        """
+        </span><span style="color: blue; font-weight: bold">return </span>crossEntLossLabel<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>hypothesis<span style="font-weight: bold">(</span>x<span style="font-weight: bold">), </span>y_true<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>der_loss_dw<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>datum<span style="font-weight: bold">, </span>label<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Derivative of self.loss function with respect to the input weights, given a single data point x and
+        label y_true.
+        Returns the derivative of the loss function with respect to the input weights
+        """
+        </span>numLabels <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">)
+        </span>dot_output <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>zeros<span style="font-weight: bold">(</span>numLabels<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>numLabels<span style="font-weight: bold">):
+            </span>dot_output<span style="font-weight: bold">[</span>i<span style="font-weight: bold">] = </span>np<span style="font-weight: bold">.</span>dot<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+        </span>softmax_output <span style="font-weight: bold">= </span>softmax<span style="font-weight: bold">(</span>dot_output<span style="font-weight: bold">)
+
+        </span>dloss_dw <span style="font-weight: bold">= []
+        </span>dloss_dsoftmax <span style="font-weight: bold">= </span>der_crossEntLossLabel_dxlabel<span style="font-weight: bold">(</span>softmax_output<span style="font-weight: bold">, </span>label<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>xrange<span style="font-weight: bold">(</span>numLabels<span style="font-weight: bold">):
+            </span>dsoftmax_ddot <span style="font-weight: bold">= </span>der_softmax_dx<span style="font-weight: bold">(</span>dot_output<span style="font-weight: bold">, </span>label<span style="font-weight: bold">, </span>i<span style="font-weight: bold">)
+            </span>ddot_dw <span style="font-weight: bold">= </span>der_dot_dw<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">, </span>weights<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+
+            </span>dloss_dw<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>dloss_dsoftmax<span style="font-weight: bold">*</span>dsoftmax_ddot<span style="font-weight: bold">*</span>ddot_dw<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">if </span>np<span style="font-weight: bold">.</span>abs<span style="font-weight: bold">(</span>np<span style="font-weight: bold">.</span>max<span style="font-weight: bold">(</span>dloss_dw<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])) &gt; </span><span style="color: red">100</span><span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">print </span>dloss_dw
+        <span style="color: blue; font-weight: bold">return </span>dloss_dw
+
+<span style="color: blue; font-weight: bold">class </span>OneVsRestLinearClassifier<span style="font-weight: bold">:
+    </span><span style="color: darkred">"""
+    One-vs-rest multiclass classifier. Trains a BinaryLinearClassifier for each
+    possible label. Then for classification it takes the max of a call to
+    BinaryLinearClassifier.hypothesis for each possible label.
+    """
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legalLabels<span style="font-weight: bold">, </span>max_iterations<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>type <span style="font-weight: bold">= </span><span style="color: red">"oneVsRestLinear"
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels <span style="font-weight: bold">= </span>legalLabels
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: red">0.01 </span><span style="color: green; font-style: italic"># Make sure this hard-coded value works, also if too large things can blow up
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations <span style="font-weight: bold">= </span>max_iterations
+
+    <span style="color: blue; font-weight: bold">def </span>train<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData<span style="font-weight: bold">, </span>trainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>validationLabels<span style="font-weight: bold">, </span>showPlot<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True </span><span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Trains a BinaryLinearClassifier (self.binaryClassifiers) for each possible label.
+        """
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>binaryClassifiers <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>legalLabel <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Training class "</span><span style="font-weight: bold">, </span>legalLabel
+            oneVsRestTrainingLabels <span style="font-weight: bold">= [</span>int<span style="font-weight: bold">(</span>trainingLabel <span style="font-weight: bold">== </span>legalLabel<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>trainingLabel <span style="color: blue; font-weight: bold">in </span>trainingLabels<span style="font-weight: bold">]
+            </span>oneVsRestValidationLabels <span style="font-weight: bold">= [</span>validationLabel <span style="font-weight: bold">== </span>legalLabel <span style="color: blue; font-weight: bold">for </span>validationLabel <span style="color: blue; font-weight: bold">in </span>validationLabels<span style="font-weight: bold">]
+
+            </span>classifier <span style="font-weight: bold">= </span>BinaryLinearClassifier<span style="font-weight: bold">([</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">], </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>max_iterations<span style="font-weight: bold">)
+            </span>classifier<span style="font-weight: bold">.</span>train<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>oneVsRestTrainingLabels<span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">, </span>oneVsRestValidationLabels<span style="font-weight: bold">, </span>showPlot<span style="font-weight: bold">=</span>showPlot<span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>binaryClassifiers<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>classifier<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>classify<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>data <span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+        Classify takes the max overs the values returned by a call to BinaryLinearClassifier.hypothesis
+        for each possible label.
+        """
+        </span>predicted_labels <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>datum <span style="color: blue; font-weight: bold">in </span>data<span style="font-weight: bold">:
+            </span>bestScore <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: red">"-inf"</span><span style="font-weight: bold">)
+            </span>bestLabelIndex <span style="font-weight: bold">= -</span><span style="color: red">1
+            </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">)):
+                </span>classificationScore <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>binaryClassifiers<span style="font-weight: bold">[</span>i<span style="font-weight: bold">].</span>hypothesis<span style="font-weight: bold">(</span>datum<span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">if </span>classificationScore <span style="font-weight: bold">&gt;= </span>bestScore<span style="font-weight: bold">:
+                    </span>bestScore <span style="font-weight: bold">= </span>classificationScore
+                    bestLabelIndex <span style="font-weight: bold">= </span>i
+
+            bestLabel <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>legalLabels<span style="font-weight: bold">[</span>bestLabelIndex<span style="font-weight: bold">]
+            </span>predicted_labels<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>bestLabel<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>predicted_labels
+
+
+  </pre>
+  </body>
+  </html>
+  

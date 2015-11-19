@@ -1,0 +1,98 @@
+<html>
+  <head>
+  <title>testParser.py</title>
+  </head>
+  <body>
+  <h3>testParser.py (<a href="../testParser.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># testParser.py
+# -------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+</span><span style="color: blue; font-weight: bold">import </span>re
+<span style="color: blue; font-weight: bold">import </span>sys
+
+<span style="color: blue; font-weight: bold">class </span>TestParser<span style="font-weight: bold">(</span>object<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>path<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># save the path to the test file
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path <span style="font-weight: bold">= </span>path
+
+    <span style="color: blue; font-weight: bold">def </span>removeComments<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>rawlines<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># remove any portion of a line following a '#' symbol
+        </span>fixed_lines <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>l <span style="color: blue; font-weight: bold">in </span>rawlines<span style="font-weight: bold">:
+            </span>idx <span style="font-weight: bold">= </span>l<span style="font-weight: bold">.</span>find<span style="font-weight: bold">(</span><span style="color: red">'#'</span><span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">if </span>idx <span style="font-weight: bold">== -</span><span style="color: red">1</span><span style="font-weight: bold">:
+                </span>fixed_lines<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>l<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span>fixed_lines<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>l<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">:</span>idx<span style="font-weight: bold">])
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">'\n'</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>fixed_lines<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>parse<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># read in the test case and remove comments
+        </span>test <span style="font-weight: bold">= {}
+        </span>with open<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path<span style="font-weight: bold">) </span>as handle<span style="font-weight: bold">:
+            </span>raw_lines <span style="font-weight: bold">= </span>handle<span style="font-weight: bold">.</span>read<span style="font-weight: bold">().</span>split<span style="font-weight: bold">(</span><span style="color: red">'\n'</span><span style="font-weight: bold">)
+
+        </span>test_text <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>removeComments<span style="font-weight: bold">(</span>raw_lines<span style="font-weight: bold">)
+        </span>test<span style="font-weight: bold">[</span><span style="color: red">'__raw_lines__'</span><span style="font-weight: bold">] = </span>raw_lines
+        test<span style="font-weight: bold">[</span><span style="color: red">'path'</span><span style="font-weight: bold">] = </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path
+        test<span style="font-weight: bold">[</span><span style="color: red">'__emit__'</span><span style="font-weight: bold">] = []
+        </span>lines <span style="font-weight: bold">= </span>test_text<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">'\n'</span><span style="font-weight: bold">)
+        </span>i <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: green; font-style: italic"># read a property in each loop cycle
+        </span><span style="color: blue; font-weight: bold">while</span><span style="font-weight: bold">(</span>i <span style="font-weight: bold">&lt; </span>len<span style="font-weight: bold">(</span>lines<span style="font-weight: bold">)):
+            </span><span style="color: green; font-style: italic"># skip blank lines
+            </span><span style="color: blue; font-weight: bold">if </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'\A\s*\Z'</span><span style="font-weight: bold">, </span>lines<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]):
+                </span>test<span style="font-weight: bold">[</span><span style="color: red">'__emit__'</span><span style="font-weight: bold">].</span>append<span style="font-weight: bold">((</span><span style="color: red">"raw"</span><span style="font-weight: bold">, </span>raw_lines<span style="font-weight: bold">[</span>i<span style="font-weight: bold">]))
+                </span>i <span style="font-weight: bold">+= </span><span style="color: red">1
+                </span><span style="color: blue; font-weight: bold">continue
+            </span>m <span style="font-weight: bold">= </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'\A([^"]*?):\s*"([^"]*)"\s*\Z'</span><span style="font-weight: bold">, </span>lines<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+            </span><span style="color: blue; font-weight: bold">if </span>m<span style="font-weight: bold">:
+                </span>test<span style="font-weight: bold">[</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)] = </span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+                </span>test<span style="font-weight: bold">[</span><span style="color: red">'__emit__'</span><span style="font-weight: bold">].</span>append<span style="font-weight: bold">((</span><span style="color: red">"oneline"</span><span style="font-weight: bold">, </span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)))
+                </span>i <span style="font-weight: bold">+= </span><span style="color: red">1
+                </span><span style="color: blue; font-weight: bold">continue
+            </span>m <span style="font-weight: bold">= </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'\A([^"]*?):\s*"""\s*\Z'</span><span style="font-weight: bold">, </span>lines<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+            </span><span style="color: blue; font-weight: bold">if </span>m<span style="font-weight: bold">:
+                </span>msg <span style="font-weight: bold">= []
+                </span>i <span style="font-weight: bold">+= </span><span style="color: red">1
+                </span><span style="color: blue; font-weight: bold">while</span><span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">not </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'\A\s*"""\s*\Z'</span><span style="font-weight: bold">, </span>lines<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])):
+                    </span>msg<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>raw_lines<span style="font-weight: bold">[</span>i<span style="font-weight: bold">])
+                    </span>i <span style="font-weight: bold">+= </span><span style="color: red">1
+                </span>test<span style="font-weight: bold">[</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)] = </span><span style="color: red">'\n'</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>msg<span style="font-weight: bold">)
+                </span>test<span style="font-weight: bold">[</span><span style="color: red">'__emit__'</span><span style="font-weight: bold">].</span>append<span style="font-weight: bold">((</span><span style="color: red">"multiline"</span><span style="font-weight: bold">, </span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)))
+                </span>i <span style="font-weight: bold">+= </span><span style="color: red">1
+                </span><span style="color: blue; font-weight: bold">continue
+            print </span><span style="color: red">'error parsing test file: %s' </span><span style="font-weight: bold">% </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path
+            sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>test
+
+
+<span style="color: blue; font-weight: bold">def </span>emitTestDict<span style="font-weight: bold">(</span>testDict<span style="font-weight: bold">, </span>handle<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">for </span>kind<span style="font-weight: bold">, </span>data <span style="color: blue; font-weight: bold">in </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'__emit__'</span><span style="font-weight: bold">]:
+        </span><span style="color: blue; font-weight: bold">if </span>kind <span style="font-weight: bold">== </span><span style="color: red">"raw"</span><span style="font-weight: bold">:
+            </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span>data <span style="font-weight: bold">+ </span><span style="color: red">"\n"</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">elif </span>kind <span style="font-weight: bold">== </span><span style="color: red">"oneline"</span><span style="font-weight: bold">:
+            </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">'%s: "%s"\n' </span><span style="font-weight: bold">% (</span>data<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">[</span>data<span style="font-weight: bold">]))
+        </span><span style="color: blue; font-weight: bold">elif </span>kind <span style="font-weight: bold">== </span><span style="color: red">"multiline"</span><span style="font-weight: bold">:
+            </span>handle<span style="font-weight: bold">.</span>write<span style="font-weight: bold">(</span><span style="color: red">'%s: """\n%s\n"""\n' </span><span style="font-weight: bold">% (</span>data<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">[</span>data<span style="font-weight: bold">]))
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Bad __emit__"</span><span style="font-weight: bold">)
+</span>
+  </pre>
+  </body>
+  </html>
+  

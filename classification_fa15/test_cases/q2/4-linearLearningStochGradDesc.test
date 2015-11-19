@@ -1,0 +1,41 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+partialPoints: "1"
+
+# Python code for the test below.
+preamble: """
+import numpy as np
+import linearLearning
+
+regression = linearLearning.LinearRegression()
+regression.weights[0] = 1
+regression.weights[1] = 1
+x = np.array([1, 2])
+y = 3
+alpha = 0.01
+der_loss_dw = regression.der_loss_dw
+ans1 = linearLearning.stochasticGradientDescentUpdate(x,y,regression.weights,alpha,der_loss_dw)
+
+regression.weights[0] = 2
+regression.weights[1] = 2
+x = np.array([1.7, 2.1])
+y = 5
+alpha = 0.005
+ans2 = linearLearning.stochasticGradientDescentUpdate(x,y,regression.weights,alpha,der_loss_dw)
+
+regression.weights[0] = 1.84
+regression.weights[1] = 0.92
+x = np.array([4.83, 1])
+y = 10
+alpha = 0.002
+ans3 = linearLearning.stochasticGradientDescentUpdate(x,y,regression.weights,alpha,der_loss_dw)
+
+ans = ans1 + ans2 + ans3
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+

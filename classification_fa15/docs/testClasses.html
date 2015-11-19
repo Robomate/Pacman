@@ -1,0 +1,219 @@
+<html>
+  <head>
+  <title>testClasses.py</title>
+  </head>
+  <body>
+  <h3>testClasses.py (<a href="../testClasses.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># testClasses.py
+# --------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# import modules from python standard library
+</span><span style="color: blue; font-weight: bold">import </span>inspect
+<span style="color: blue; font-weight: bold">import </span>re
+<span style="color: blue; font-weight: bold">import </span>sys
+
+
+<span style="color: green; font-style: italic"># Class which models a question in a project.  Note that questions have a
+# maximum number of points they are worth, and are composed of a series of
+# test cases
+</span><span style="color: blue; font-weight: bold">class </span>Question<span style="font-weight: bold">(</span>object<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>raiseNotDefined<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Method not implemented: %s' </span><span style="font-weight: bold">% </span>inspect<span style="font-weight: bold">.</span>stack<span style="font-weight: bold">()[</span><span style="color: red">1</span><span style="font-weight: bold">][</span><span style="color: red">3</span><span style="font-weight: bold">]
+        </span>sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>questionDict<span style="font-weight: bold">, </span>display<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>questionDict<span style="font-weight: bold">[</span><span style="color: red">'max_points'</span><span style="font-weight: bold">])
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases <span style="font-weight: bold">= []
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display <span style="font-weight: bold">= </span>display
+
+    <span style="color: blue; font-weight: bold">def </span>getDisplay<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display
+
+    <span style="color: blue; font-weight: bold">def </span>getMaxPoints<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints
+
+    <span style="color: green; font-style: italic"># Note that 'thunk' must be a function which accepts a single argument,
+    # namely a 'grading' object
+    </span><span style="color: blue; font-weight: bold">def </span>addTestCase<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>testCase<span style="font-weight: bold">, </span>thunk<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>testCase<span style="font-weight: bold">, </span>thunk<span style="font-weight: bold">))
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: green; font-style: italic"># Question in which all test cases must be passed in order to receive credit
+</span><span style="color: blue; font-weight: bold">class </span>PassAllTestsQuestion<span style="font-weight: bold">(</span>Question<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># TODO: is this the right way to use grades?  The autograder doesn't seem to use it.
+        </span>testsFailed <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+        </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">for </span>_<span style="font-weight: bold">, </span>f <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">if not </span>f<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">):
+                </span>testsFailed <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+        if </span>testsFailed<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>fail<span style="font-weight: bold">(</span><span style="color: red">"Tests failed."</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>assignFullCredit<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>ExtraCreditPassAllTestsQuestion<span style="font-weight: bold">(</span>Question<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>questionDict<span style="font-weight: bold">, </span>display<span style="font-weight: bold">):
+        </span>Question<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>questionDict<span style="font-weight: bold">, </span>display<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>extraPoints <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>questionDict<span style="font-weight: bold">[</span><span style="color: red">'extra_points'</span><span style="font-weight: bold">])
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># TODO: is this the right way to use grades?  The autograder doesn't seem to use it.
+        </span>testsFailed <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+        </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">for </span>_<span style="font-weight: bold">, </span>f <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">if not </span>f<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">):
+                </span>testsFailed <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+        if </span>testsFailed<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>fail<span style="font-weight: bold">(</span><span style="color: red">"Tests failed."</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>assignFullCredit<span style="font-weight: bold">()
+            </span>grades<span style="font-weight: bold">.</span>addPoints<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>extraPoints<span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic"># Question in which predict credit is given for test cases with a ``points'' property.
+# All other tests are mandatory and must be passed.
+</span><span style="color: blue; font-weight: bold">class </span>HackedPartialCreditQuestion<span style="font-weight: bold">(</span>Question<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic"># TODO: is this the right way to use grades?  The autograder doesn't seem to use it.
+        </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+
+        </span>points <span style="font-weight: bold">= </span><span style="color: red">0
+        </span>passed <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+        for </span>testCase<span style="font-weight: bold">, </span>f <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">:
+            </span>testResult <span style="font-weight: bold">= </span>f<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">"points" </span><span style="color: blue; font-weight: bold">in </span>testCase<span style="font-weight: bold">.</span>testDict<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if </span>testResult<span style="font-weight: bold">: </span>points <span style="font-weight: bold">+= </span>float<span style="font-weight: bold">(</span>testCase<span style="font-weight: bold">.</span>testDict<span style="font-weight: bold">[</span><span style="color: red">"points"</span><span style="font-weight: bold">])
+            </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span>passed <span style="font-weight: bold">= </span>passed <span style="color: blue; font-weight: bold">and </span>testResult
+
+        <span style="color: green; font-style: italic">## FIXME: Below terrible hack to match q3's logic
+        </span><span style="color: blue; font-weight: bold">if </span>int<span style="font-weight: bold">(</span>points<span style="font-weight: bold">) == </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>maxPoints <span style="color: blue; font-weight: bold">and not </span>passed<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>addPoints<span style="font-weight: bold">(</span>int<span style="font-weight: bold">(</span>points<span style="font-weight: bold">))
+
+
+</span><span style="color: blue; font-weight: bold">class </span>Q6PartialCreditQuestion<span style="font-weight: bold">(</span>Question<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""Fails any test which returns False, otherwise doesn't effect the grades object.
+    Partial credit tests will add the required points."""
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+
+        </span>results <span style="font-weight: bold">= []
+        </span><span style="color: blue; font-weight: bold">for </span>_<span style="font-weight: bold">, </span>f <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">:
+            </span>results<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>f<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">))
+        </span><span style="color: blue; font-weight: bold">if False in </span>results<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>PartialCreditQuestion<span style="font-weight: bold">(</span>Question<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""Fails any test which returns False, otherwise doesn't effect the grades object.
+    Partial credit tests will add the required points."""
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+
+        </span><span style="color: blue; font-weight: bold">for </span>_<span style="font-weight: bold">, </span>f <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">if not </span>f<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">):
+                </span>grades<span style="font-weight: bold">.</span>assignZeroCredit<span style="font-weight: bold">()
+                </span>grades<span style="font-weight: bold">.</span>fail<span style="font-weight: bold">(</span><span style="color: red">"Tests failed."</span><span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">return False
+
+
+
+class </span>NumberPassedQuestion<span style="font-weight: bold">(</span>Question<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""Grade is the number of test cases passed."""
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span>grades<span style="font-weight: bold">.</span>addPoints<span style="font-weight: bold">([</span>f<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>_<span style="font-weight: bold">, </span>f <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>testCases<span style="font-weight: bold">].</span>count<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">))
+
+
+
+
+
+</span><span style="color: green; font-style: italic"># Template modeling a generic test case
+</span><span style="color: blue; font-weight: bold">class </span>TestCase<span style="font-weight: bold">(</span>object<span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">def </span>raiseNotDefined<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Method not implemented: %s' </span><span style="font-weight: bold">% </span>inspect<span style="font-weight: bold">.</span>stack<span style="font-weight: bold">()[</span><span style="color: red">1</span><span style="font-weight: bold">][</span><span style="color: red">3</span><span style="font-weight: bold">]
+        </span>sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>getPath<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path
+
+    <span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>question <span style="font-weight: bold">= </span>question
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>testDict <span style="font-weight: bold">= </span>testDict
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>path <span style="font-weight: bold">= </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'path'</span><span style="font-weight: bold">]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages <span style="font-weight: bold">= []
+
+    </span><span style="color: blue; font-weight: bold">def </span>__str__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>execute<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">def </span>writeSolution<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>filePath<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">return True
+
+    </span><span style="color: green; font-style: italic"># Tests should call the following messages for grading
+    # to ensure a uniform format for test output.
+    #
+    # TODO: this is hairy, but we need to fix grading.py's interface
+    # to get a nice hierarchical project - question - test structure,
+    # then these should be moved into Question proper.
+    </span><span style="color: blue; font-weight: bold">def </span>testPass<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span>grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'PASS: %s' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path<span style="font-weight: bold">,))
+        </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'    %s' </span><span style="font-weight: bold">% (</span>line<span style="font-weight: bold">,))
+        </span><span style="color: blue; font-weight: bold">return True
+
+    def </span>testFail<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">):
+        </span>grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'FAIL: %s' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path<span style="font-weight: bold">,))
+        </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'    %s' </span><span style="font-weight: bold">% (</span>line<span style="font-weight: bold">,))
+        </span><span style="color: blue; font-weight: bold">return False
+
+    </span><span style="color: green; font-style: italic"># This should really be question level?
+    #
+    </span><span style="color: blue; font-weight: bold">def </span>testPartial<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>grades<span style="font-weight: bold">, </span>points<span style="font-weight: bold">, </span>maxPoints<span style="font-weight: bold">):
+        </span>grades<span style="font-weight: bold">.</span>addPoints<span style="font-weight: bold">(</span>points<span style="font-weight: bold">)
+        </span>extraCredit <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">, </span>points <span style="font-weight: bold">- </span>maxPoints<span style="font-weight: bold">)
+        </span>regularCredit <span style="font-weight: bold">= </span>points <span style="font-weight: bold">- </span>extraCredit
+
+        grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'%s: %s (%s of %s points)' </span><span style="font-weight: bold">% (</span><span style="color: red">"PASS" </span><span style="color: blue; font-weight: bold">if </span>points <span style="font-weight: bold">&gt;= </span>maxPoints <span style="color: blue; font-weight: bold">else </span><span style="color: red">"FAIL"</span><span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>path<span style="font-weight: bold">, </span>regularCredit<span style="font-weight: bold">, </span>maxPoints<span style="font-weight: bold">))
+        </span><span style="color: blue; font-weight: bold">if </span>extraCredit <span style="font-weight: bold">&gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'EXTRA CREDIT: %s points' </span><span style="font-weight: bold">% (</span>extraCredit<span style="font-weight: bold">,))
+
+        </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages<span style="font-weight: bold">:
+            </span>grades<span style="font-weight: bold">.</span>addMessage<span style="font-weight: bold">(</span><span style="color: red">'    %s' </span><span style="font-weight: bold">% (</span>line<span style="font-weight: bold">,))
+
+        </span><span style="color: blue; font-weight: bold">return True
+
+    def </span>addMessage<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>message<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>messages<span style="font-weight: bold">.</span>extend<span style="font-weight: bold">(</span>message<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">'\n'</span><span style="font-weight: bold">))
+
+</span>
+  </pre>
+  </body>
+  </html>
+  

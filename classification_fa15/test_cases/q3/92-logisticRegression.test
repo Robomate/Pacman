@@ -1,0 +1,13 @@
+class: "GradeClassifierTest"
+classifierModule: "linearLearning"
+classifierClass: "BinaryLinearClassifier"
+
+datasetName: "gmm2D"
+
+max_iterations: "20"
+
+exactOutput: "True"
+accuracyScale: "1"
+accuracyThresholds: "80"
+
+

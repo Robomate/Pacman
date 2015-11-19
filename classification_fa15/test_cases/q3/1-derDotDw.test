@@ -1,0 +1,21 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+
+# Python code for the test below.
+preamble: """
+import linearLearning
+import numpy as np
+
+ans1 = linearLearning.der_dot_dw(np.array([2, 3]), np.array([0, 4]))
+ans2 = linearLearning.der_dot_dw(np.array([-2, -7]), np.array([9, 5]))
+ans3 = linearLearning.der_dot_dw(np.array([0, 3.2]), np.array([2, 3]))
+
+ans = sum([ans1, ans2, ans3])
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+

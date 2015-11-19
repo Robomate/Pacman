@@ -1,0 +1,364 @@
+<html>
+  <head>
+  <title>autograder.py</title>
+  </head>
+  <body>
+  <h3>autograder.py (<a href="../autograder.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># autograder.py
+# -------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# imports from python standard library
+</span><span style="color: blue; font-weight: bold">import </span>grading
+<span style="color: blue; font-weight: bold">import </span>imp
+<span style="color: blue; font-weight: bold">import </span>optparse
+<span style="color: blue; font-weight: bold">import </span>os
+<span style="color: blue; font-weight: bold">import </span>re
+<span style="color: blue; font-weight: bold">import </span>sys
+<span style="color: blue; font-weight: bold">import </span>projectParams
+<span style="color: blue; font-weight: bold">import </span>random
+random<span style="font-weight: bold">.</span>seed<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">: 
+    </span><span style="color: blue; font-weight: bold">from </span>pacman <span style="color: blue; font-weight: bold">import </span>GameState
+<span style="color: blue; font-weight: bold">except</span><span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">pass
+
+</span><span style="color: green; font-style: italic"># register arguments and set default values
+</span><span style="color: blue; font-weight: bold">def </span>readCommand<span style="font-weight: bold">(</span>argv<span style="font-weight: bold">):
+    </span>parser <span style="font-weight: bold">= </span>optparse<span style="font-weight: bold">.</span>OptionParser<span style="font-weight: bold">(</span>description <span style="font-weight: bold">= </span><span style="color: red">'Run public tests on student code'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>set_defaults<span style="font-weight: bold">(</span>generateSolutions<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>edxOutput<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>muteOutput<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>printTestCase<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>noGraphics<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--test-directory'</span><span style="font-weight: bold">,
+                      </span>dest <span style="font-weight: bold">= </span><span style="color: red">'testRoot'</span><span style="font-weight: bold">,
+                      </span>default <span style="font-weight: bold">= </span><span style="color: red">'test_cases'</span><span style="font-weight: bold">,
+                      </span>help <span style="font-weight: bold">= </span><span style="color: red">'Root test directory which contains subdirectories corresponding to each question'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--student-code'</span><span style="font-weight: bold">,
+                      </span>dest <span style="font-weight: bold">= </span><span style="color: red">'studentCode'</span><span style="font-weight: bold">,
+                      </span>default <span style="font-weight: bold">= </span>projectParams<span style="font-weight: bold">.</span>STUDENT_CODE_DEFAULT<span style="font-weight: bold">,
+                      </span>help <span style="font-weight: bold">= </span><span style="color: red">'comma separated list of student code files'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--code-directory'</span><span style="font-weight: bold">,
+                    </span>dest <span style="font-weight: bold">= </span><span style="color: red">'codeRoot'</span><span style="font-weight: bold">,
+                    </span>default <span style="font-weight: bold">= </span><span style="color: red">""</span><span style="font-weight: bold">,
+                    </span>help <span style="font-weight: bold">= </span><span style="color: red">'Root directory containing the student and testClass code'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--test-case-code'</span><span style="font-weight: bold">,
+                      </span>dest <span style="font-weight: bold">= </span><span style="color: red">'testCaseCode'</span><span style="font-weight: bold">,
+                      </span>default <span style="font-weight: bold">= </span>projectParams<span style="font-weight: bold">.</span>PROJECT_TEST_CLASSES<span style="font-weight: bold">,
+                      </span>help <span style="font-weight: bold">= </span><span style="color: red">'class containing testClass classes for this project'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--generate-solutions'</span><span style="font-weight: bold">,
+                      </span>dest <span style="font-weight: bold">= </span><span style="color: red">'generateSolutions'</span><span style="font-weight: bold">,
+                      </span>action <span style="font-weight: bold">= </span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                      </span>help <span style="font-weight: bold">= </span><span style="color: red">'Write solutions generated to .solution file'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--edx-output'</span><span style="font-weight: bold">,
+                    </span>dest <span style="font-weight: bold">= </span><span style="color: red">'edxOutput'</span><span style="font-weight: bold">,
+                    </span>action <span style="font-weight: bold">= </span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help <span style="font-weight: bold">= </span><span style="color: red">'Generate edX output files'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--mute'</span><span style="font-weight: bold">,
+                    </span>dest <span style="font-weight: bold">= </span><span style="color: red">'muteOutput'</span><span style="font-weight: bold">,
+                    </span>action <span style="font-weight: bold">= </span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help <span style="font-weight: bold">= </span><span style="color: red">'Mute output from executing tests'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--print-tests'</span><span style="font-weight: bold">, </span><span style="color: red">'-p'</span><span style="font-weight: bold">,
+                    </span>dest <span style="font-weight: bold">= </span><span style="color: red">'printTestCase'</span><span style="font-weight: bold">,
+                    </span>action <span style="font-weight: bold">= </span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help <span style="font-weight: bold">= </span><span style="color: red">'Print each test case before running them.'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--test'</span><span style="font-weight: bold">, </span><span style="color: red">'-t'</span><span style="font-weight: bold">,
+                      </span>dest <span style="font-weight: bold">= </span><span style="color: red">'runTest'</span><span style="font-weight: bold">,
+                      </span>default <span style="font-weight: bold">= </span><span style="color: blue">None</span><span style="font-weight: bold">,
+                      </span>help <span style="font-weight: bold">= </span><span style="color: red">'Run one particular test.  Relative to test root.'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--question'</span><span style="font-weight: bold">, </span><span style="color: red">'-q'</span><span style="font-weight: bold">,
+                    </span>dest <span style="font-weight: bold">= </span><span style="color: red">'gradeQuestion'</span><span style="font-weight: bold">,
+                    </span>default <span style="font-weight: bold">= </span><span style="color: blue">None</span><span style="font-weight: bold">,
+                    </span>help <span style="font-weight: bold">= </span><span style="color: red">'Grade one particular question.'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--no-graphics'</span><span style="font-weight: bold">,
+                    </span>dest <span style="font-weight: bold">= </span><span style="color: red">'noGraphics'</span><span style="font-weight: bold">,
+                    </span>action <span style="font-weight: bold">= </span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help <span style="font-weight: bold">= </span><span style="color: red">'No graphics display for pacman games.'</span><span style="font-weight: bold">)
+    (</span>options<span style="font-weight: bold">, </span>args<span style="font-weight: bold">) = </span>parser<span style="font-weight: bold">.</span>parse_args<span style="font-weight: bold">(</span>argv<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>options
+
+
+<span style="color: green; font-style: italic"># confirm we should author solution files
+</span><span style="color: blue; font-weight: bold">def </span>confirmGenerate<span style="font-weight: bold">():
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'WARNING: this action will overwrite any solution files.'
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Are you sure you want to proceed? (yes/no)'
+    </span><span style="color: blue; font-weight: bold">while True</span><span style="font-weight: bold">:
+        </span>ans <span style="font-weight: bold">= </span>sys<span style="font-weight: bold">.</span>stdin<span style="font-weight: bold">.</span>readline<span style="font-weight: bold">().</span>strip<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">if </span>ans <span style="font-weight: bold">== </span><span style="color: red">'yes'</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">break
+        elif </span>ans <span style="font-weight: bold">== </span><span style="color: red">'no'</span><span style="font-weight: bold">:
+            </span>sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'please answer either "yes" or "no"'
+
+
+</span><span style="color: green; font-style: italic"># TODO: Fix this so that it tracebacks work correctly
+# Looking at source of the traceback module, presuming it works
+# the same as the intepreters, it uses co_filename.  This is,
+# however, a readonly attribute.
+</span><span style="color: blue; font-weight: bold">def </span>setModuleName<span style="font-weight: bold">(</span>module<span style="font-weight: bold">, </span>filename<span style="font-weight: bold">):
+    </span>functionType <span style="font-weight: bold">= </span>type<span style="font-weight: bold">(</span>confirmGenerate<span style="font-weight: bold">)
+    </span>classType <span style="font-weight: bold">= </span>type<span style="font-weight: bold">(</span>optparse<span style="font-weight: bold">.</span>Option<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span>module<span style="font-weight: bold">):
+        </span>o <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>module<span style="font-weight: bold">, </span>i<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if </span>hasattr<span style="font-weight: bold">(</span>o<span style="font-weight: bold">, </span><span style="color: red">'__file__'</span><span style="font-weight: bold">): </span><span style="color: blue; font-weight: bold">continue
+
+        if </span>type<span style="font-weight: bold">(</span>o<span style="font-weight: bold">) == </span>functionType<span style="font-weight: bold">:
+            </span>setattr<span style="font-weight: bold">(</span>o<span style="font-weight: bold">, </span><span style="color: red">'__file__'</span><span style="font-weight: bold">, </span>filename<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">elif </span>type<span style="font-weight: bold">(</span>o<span style="font-weight: bold">) == </span>classType<span style="font-weight: bold">:
+            </span>setattr<span style="font-weight: bold">(</span>o<span style="font-weight: bold">, </span><span style="color: red">'__file__'</span><span style="font-weight: bold">, </span>filename<span style="font-weight: bold">)
+            </span><span style="color: green; font-style: italic"># TODO: assign member __file__'s?
+        #print i, type(o)
+
+
+#from cStringIO import StringIO
+
+</span><span style="color: blue; font-weight: bold">def </span>loadModuleString<span style="font-weight: bold">(</span>moduleSource<span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># Below broken, imp doesn't believe its being passed a file:
+    #    ValueError: load_module arg#2 should be a file or None
+    #
+    #f = StringIO(moduleCodeDict[k])
+    #tmp = imp.load_module(k, f, k, (".py", "r", imp.PY_SOURCE))
+    </span>tmp <span style="font-weight: bold">= </span>imp<span style="font-weight: bold">.</span>new_module<span style="font-weight: bold">(</span>k<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">exec </span>moduleCodeDict<span style="font-weight: bold">[</span>k<span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">in </span>tmp<span style="font-weight: bold">.</span>__dict__
+    setModuleName<span style="font-weight: bold">(</span>tmp<span style="font-weight: bold">, </span>k<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>tmp
+
+<span style="color: blue; font-weight: bold">import </span>py_compile
+
+<span style="color: blue; font-weight: bold">def </span>loadModuleFile<span style="font-weight: bold">(</span>moduleName<span style="font-weight: bold">, </span>filePath<span style="font-weight: bold">):
+    </span>with open<span style="font-weight: bold">(</span>filePath<span style="font-weight: bold">, </span><span style="color: red">'r'</span><span style="font-weight: bold">) </span>as f<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return </span>imp<span style="font-weight: bold">.</span>load_module<span style="font-weight: bold">(</span>moduleName<span style="font-weight: bold">, </span>f<span style="font-weight: bold">, </span><span style="color: red">"%s.py" </span><span style="font-weight: bold">% </span>moduleName<span style="font-weight: bold">, (</span><span style="color: red">".py"</span><span style="font-weight: bold">, </span><span style="color: red">"r"</span><span style="font-weight: bold">, </span>imp<span style="font-weight: bold">.</span>PY_SOURCE<span style="font-weight: bold">))
+
+
+</span><span style="color: blue; font-weight: bold">def </span>readFile<span style="font-weight: bold">(</span>path<span style="font-weight: bold">, </span>root<span style="font-weight: bold">=</span><span style="color: red">""</span><span style="font-weight: bold">):
+    </span><span style="color: red">"Read file from disk at specified path and return as string"
+    </span>with open<span style="font-weight: bold">(</span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>root<span style="font-weight: bold">, </span>path<span style="font-weight: bold">), </span><span style="color: red">'r'</span><span style="font-weight: bold">) </span>as handle<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return </span>handle<span style="font-weight: bold">.</span>read<span style="font-weight: bold">()
+
+
+</span><span style="color: green; font-style: italic">#######################################################################
+# Error Hint Map
+#######################################################################
+
+# TODO: use these
+</span>ERROR_HINT_MAP <span style="font-weight: bold">= {
+  </span><span style="color: red">'q1'</span><span style="font-weight: bold">: {
+    </span><span style="color: red">"&lt;type 'exceptions.IndexError'&gt;"</span><span style="font-weight: bold">: </span><span style="color: darkred">"""
+      We noticed that your project threw an IndexError on q1.
+      While many things may cause this, it may have been from
+      assuming a certain number of successors from a state space
+      or assuming a certain number of actions available from a given
+      state. Try making your code more general (no hardcoded indices)
+      and submit again!
+    """
+  </span><span style="font-weight: bold">},
+  </span><span style="color: red">'q3'</span><span style="font-weight: bold">: {
+      </span><span style="color: red">"&lt;type 'exceptions.AttributeError'&gt;"</span><span style="font-weight: bold">: </span><span style="color: darkred">"""
+        We noticed that your project threw an AttributeError on q3.
+        While many things may cause this, it may have been from assuming
+        a certain size or structure to the state space. For example, if you have
+        a line of code assuming that the state is (x, y) and we run your code
+        on a state space with (x, y, z), this error could be thrown. Try
+        making your code more general and submit again!
+
+    """
+  </span><span style="font-weight: bold">}
+}
+
+</span><span style="color: blue; font-weight: bold">import </span>pprint
+
+<span style="color: blue; font-weight: bold">def </span>splitStrings<span style="font-weight: bold">(</span>d<span style="font-weight: bold">):
+    </span>d2 <span style="font-weight: bold">= </span>dict<span style="font-weight: bold">(</span>d<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">for </span>k <span style="color: blue; font-weight: bold">in </span>d<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">if </span>k<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">:</span><span style="color: red">2</span><span style="font-weight: bold">] == </span><span style="color: red">"__"</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">del </span>d2<span style="font-weight: bold">[</span>k<span style="font-weight: bold">]
+            </span><span style="color: blue; font-weight: bold">continue
+        if </span>d2<span style="font-weight: bold">[</span>k<span style="font-weight: bold">].</span>find<span style="font-weight: bold">(</span><span style="color: red">"\n"</span><span style="font-weight: bold">) &gt;= </span><span style="color: red">0</span><span style="font-weight: bold">:
+            </span>d2<span style="font-weight: bold">[</span>k<span style="font-weight: bold">] = </span>d2<span style="font-weight: bold">[</span>k<span style="font-weight: bold">].</span>split<span style="font-weight: bold">(</span><span style="color: red">"\n"</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>d2
+
+
+<span style="color: blue; font-weight: bold">def </span>printTest<span style="font-weight: bold">(</span>testDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">):
+    </span>pp <span style="font-weight: bold">= </span>pprint<span style="font-weight: bold">.</span>PrettyPrinter<span style="font-weight: bold">(</span>indent<span style="font-weight: bold">=</span><span style="color: red">4</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Test case:"
+    </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span>testDict<span style="font-weight: bold">[</span><span style="color: red">"__raw_lines__"</span><span style="font-weight: bold">]:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"   |"</span><span style="font-weight: bold">, </span>line
+    <span style="color: blue; font-weight: bold">print </span><span style="color: red">"Solution:"
+    </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span>solutionDict<span style="font-weight: bold">[</span><span style="color: red">"__raw_lines__"</span><span style="font-weight: bold">]:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"   |"</span><span style="font-weight: bold">, </span>line
+
+
+<span style="color: blue; font-weight: bold">def </span>runTest<span style="font-weight: bold">(</span>testName<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>printTestCase<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>display<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">import </span>testParser
+    <span style="color: blue; font-weight: bold">import </span>testClasses
+    <span style="color: blue; font-weight: bold">for </span>module <span style="color: blue; font-weight: bold">in </span>moduleDict<span style="font-weight: bold">:
+        </span>setattr<span style="font-weight: bold">(</span>sys<span style="font-weight: bold">.</span>modules<span style="font-weight: bold">[</span>__name__<span style="font-weight: bold">], </span>module<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">[</span>module<span style="font-weight: bold">])
+
+    </span>testDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>testName <span style="font-weight: bold">+ </span><span style="color: red">".test"</span><span style="font-weight: bold">).</span>parse<span style="font-weight: bold">()
+    </span>solutionDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>testName <span style="font-weight: bold">+ </span><span style="color: red">".solution"</span><span style="font-weight: bold">).</span>parse<span style="font-weight: bold">()
+    </span>test_out_file <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span><span style="color: red">'%s.test_output' </span><span style="font-weight: bold">% </span>testName<span style="font-weight: bold">)
+    </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'test_out_file'</span><span style="font-weight: bold">] = </span>test_out_file
+    testClass <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>projectTestClasses<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'class'</span><span style="font-weight: bold">])
+
+    </span>questionClass <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>testClasses<span style="font-weight: bold">, </span><span style="color: red">'Question'</span><span style="font-weight: bold">)
+    </span>question <span style="font-weight: bold">= </span>questionClass<span style="font-weight: bold">({</span><span style="color: red">'max_points'</span><span style="font-weight: bold">: </span><span style="color: red">0</span><span style="font-weight: bold">}, </span>display<span style="font-weight: bold">)
+    </span>testCase <span style="font-weight: bold">= </span>testClass<span style="font-weight: bold">(</span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>printTestCase<span style="font-weight: bold">:
+        </span>printTest<span style="font-weight: bold">(</span>testDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># This is a fragile hack to create a stub grades object
+    </span>grades <span style="font-weight: bold">= </span>grading<span style="font-weight: bold">.</span>Grades<span style="font-weight: bold">(</span>projectParams<span style="font-weight: bold">.</span>PROJECT_NAME<span style="font-weight: bold">, [(</span><span style="color: blue">None</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">)])
+    </span>testCase<span style="font-weight: bold">.</span>execute<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">)
+
+
+</span><span style="color: green; font-style: italic"># returns all the tests you need to run in order to run question
+</span><span style="color: blue; font-weight: bold">def </span>getDepends<span style="font-weight: bold">(</span>testParser<span style="font-weight: bold">, </span>testRoot<span style="font-weight: bold">, </span>question<span style="font-weight: bold">):
+    </span>allDeps <span style="font-weight: bold">= [</span>question<span style="font-weight: bold">]
+    </span>questionDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>testRoot<span style="font-weight: bold">, </span>question<span style="font-weight: bold">, </span><span style="color: red">'CONFIG'</span><span style="font-weight: bold">)).</span>parse<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'depends' </span><span style="color: blue; font-weight: bold">in </span>questionDict<span style="font-weight: bold">:
+        </span>depends <span style="font-weight: bold">= </span>questionDict<span style="font-weight: bold">[</span><span style="color: red">'depends'</span><span style="font-weight: bold">].</span>split<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">for </span>d <span style="color: blue; font-weight: bold">in </span>depends<span style="font-weight: bold">:
+            </span><span style="color: green; font-style: italic"># run dependencies first
+            </span>allDeps <span style="font-weight: bold">= </span>getDepends<span style="font-weight: bold">(</span>testParser<span style="font-weight: bold">, </span>testRoot<span style="font-weight: bold">, </span>d<span style="font-weight: bold">) + </span>allDeps
+    <span style="color: blue; font-weight: bold">return </span>allDeps
+
+<span style="color: green; font-style: italic"># get list of questions to grade
+</span><span style="color: blue; font-weight: bold">def </span>getTestSubdirs<span style="font-weight: bold">(</span>testParser<span style="font-weight: bold">, </span>testRoot<span style="font-weight: bold">, </span>questionToGrade<span style="font-weight: bold">):
+    </span>problemDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>testRoot<span style="font-weight: bold">, </span><span style="color: red">'CONFIG'</span><span style="font-weight: bold">)).</span>parse<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if </span>questionToGrade <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>questions <span style="font-weight: bold">= </span>getDepends<span style="font-weight: bold">(</span>testParser<span style="font-weight: bold">, </span>testRoot<span style="font-weight: bold">, </span>questionToGrade<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>questions<span style="font-weight: bold">) &gt; </span><span style="color: red">1</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Note: due to dependencies, the following tests will be run: %s' </span><span style="font-weight: bold">% </span><span style="color: red">' '</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>questions<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>questions
+    <span style="color: blue; font-weight: bold">if </span><span style="color: red">'order' </span><span style="color: blue; font-weight: bold">in </span>problemDict<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">return </span>problemDict<span style="font-weight: bold">[</span><span style="color: red">'order'</span><span style="font-weight: bold">].</span>split<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">return </span>sorted<span style="font-weight: bold">(</span>os<span style="font-weight: bold">.</span>listdir<span style="font-weight: bold">(</span>testRoot<span style="font-weight: bold">))
+
+
+</span><span style="color: green; font-style: italic"># evaluate student code
+</span><span style="color: blue; font-weight: bold">def </span>evaluate<span style="font-weight: bold">(</span>generateSolutions<span style="font-weight: bold">, </span>testRoot<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>exceptionMap<span style="font-weight: bold">=</span>ERROR_HINT_MAP<span style="font-weight: bold">, </span>edxOutput<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>muteOutput<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">,
+            </span>printTestCase<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>questionToGrade<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>display<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># imports of testbench code.  note that the testClasses import must follow
+    # the import of student code due to dependencies
+    </span><span style="color: blue; font-weight: bold">import </span>testParser
+    <span style="color: blue; font-weight: bold">import </span>testClasses
+    <span style="color: blue; font-weight: bold">for </span>module <span style="color: blue; font-weight: bold">in </span>moduleDict<span style="font-weight: bold">:
+        </span>setattr<span style="font-weight: bold">(</span>sys<span style="font-weight: bold">.</span>modules<span style="font-weight: bold">[</span>__name__<span style="font-weight: bold">], </span>module<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">[</span>module<span style="font-weight: bold">])
+
+    </span>questions <span style="font-weight: bold">= []
+    </span>questionDicts <span style="font-weight: bold">= {}
+    </span>test_subdirs <span style="font-weight: bold">= </span>getTestSubdirs<span style="font-weight: bold">(</span>testParser<span style="font-weight: bold">, </span>testRoot<span style="font-weight: bold">, </span>questionToGrade<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span>test_subdirs<span style="font-weight: bold">:
+        </span>subdir_path <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>testRoot<span style="font-weight: bold">, </span>q<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if not </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>isdir<span style="font-weight: bold">(</span>subdir_path<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">or </span>q<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] == </span><span style="color: red">'.'</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">continue
+
+        </span><span style="color: green; font-style: italic"># create a question object
+        </span>questionDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>subdir_path<span style="font-weight: bold">, </span><span style="color: red">'CONFIG'</span><span style="font-weight: bold">)).</span>parse<span style="font-weight: bold">()
+        </span>questionClass <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>testClasses<span style="font-weight: bold">, </span>questionDict<span style="font-weight: bold">[</span><span style="color: red">'class'</span><span style="font-weight: bold">])
+        </span>question <span style="font-weight: bold">= </span>questionClass<span style="font-weight: bold">(</span>questionDict<span style="font-weight: bold">, </span>display<span style="font-weight: bold">)
+        </span>questionDicts<span style="font-weight: bold">[</span>q<span style="font-weight: bold">] = </span>questionDict
+
+        <span style="color: green; font-style: italic"># load test cases into question
+        </span>tests <span style="font-weight: bold">= </span>filter<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">lambda </span>t<span style="font-weight: bold">: </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'[^#~.].*\.test\Z'</span><span style="font-weight: bold">, </span>t<span style="font-weight: bold">), </span>os<span style="font-weight: bold">.</span>listdir<span style="font-weight: bold">(</span>subdir_path<span style="font-weight: bold">))
+        </span>tests <span style="font-weight: bold">= </span>map<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">lambda </span>t<span style="font-weight: bold">: </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'(.*)\.test\Z'</span><span style="font-weight: bold">, </span>t<span style="font-weight: bold">).</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">), </span>tests<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>t <span style="color: blue; font-weight: bold">in </span>sorted<span style="font-weight: bold">(</span>tests<span style="font-weight: bold">):
+            </span>test_file <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>subdir_path<span style="font-weight: bold">, </span><span style="color: red">'%s.test' </span><span style="font-weight: bold">% </span>t<span style="font-weight: bold">)
+            </span>solution_file <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>subdir_path<span style="font-weight: bold">, </span><span style="color: red">'%s.solution' </span><span style="font-weight: bold">% </span>t<span style="font-weight: bold">)
+            </span>test_out_file <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>subdir_path<span style="font-weight: bold">, </span><span style="color: red">'%s.test_output' </span><span style="font-weight: bold">% </span>t<span style="font-weight: bold">)
+            </span>testDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>test_file<span style="font-weight: bold">).</span>parse<span style="font-weight: bold">()
+            </span><span style="color: blue; font-weight: bold">if </span>testDict<span style="font-weight: bold">.</span>get<span style="font-weight: bold">(</span><span style="color: red">"disabled"</span><span style="font-weight: bold">, </span><span style="color: red">"false"</span><span style="font-weight: bold">).</span>lower<span style="font-weight: bold">() == </span><span style="color: red">"true"</span><span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">continue
+            </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'test_out_file'</span><span style="font-weight: bold">] = </span>test_out_file
+            testClass <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>projectTestClasses<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">[</span><span style="color: red">'class'</span><span style="font-weight: bold">])
+            </span>testCase <span style="font-weight: bold">= </span>testClass<span style="font-weight: bold">(</span>question<span style="font-weight: bold">, </span>testDict<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">def </span>makefun<span style="font-weight: bold">(</span>testCase<span style="font-weight: bold">, </span>solution_file<span style="font-weight: bold">):
+                </span><span style="color: blue; font-weight: bold">if </span>generateSolutions<span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># write solution file to disk
+                    </span><span style="color: blue; font-weight: bold">return lambda </span>grades<span style="font-weight: bold">: </span>testCase<span style="font-weight: bold">.</span>writeSolution<span style="font-weight: bold">(</span>moduleDict<span style="font-weight: bold">, </span>solution_file<span style="font-weight: bold">)
+                </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                    </span><span style="color: green; font-style: italic"># read in solution dictionary and pass as an argument
+                    </span>testDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>test_file<span style="font-weight: bold">).</span>parse<span style="font-weight: bold">()
+                    </span>solutionDict <span style="font-weight: bold">= </span>testParser<span style="font-weight: bold">.</span>TestParser<span style="font-weight: bold">(</span>solution_file<span style="font-weight: bold">).</span>parse<span style="font-weight: bold">()
+                    </span><span style="color: blue; font-weight: bold">if </span>printTestCase<span style="font-weight: bold">:
+                        </span><span style="color: blue; font-weight: bold">return lambda </span>grades<span style="font-weight: bold">: </span>printTest<span style="font-weight: bold">(</span>testDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">or </span>testCase<span style="font-weight: bold">.</span>execute<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">)
+                    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                        </span><span style="color: blue; font-weight: bold">return lambda </span>grades<span style="font-weight: bold">: </span>testCase<span style="font-weight: bold">.</span>execute<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>solutionDict<span style="font-weight: bold">)
+            </span>question<span style="font-weight: bold">.</span>addTestCase<span style="font-weight: bold">(</span>testCase<span style="font-weight: bold">, </span>makefun<span style="font-weight: bold">(</span>testCase<span style="font-weight: bold">, </span>solution_file<span style="font-weight: bold">))
+
+        </span><span style="color: green; font-style: italic"># Note extra function is necessary for scoping reasons
+        </span><span style="color: blue; font-weight: bold">def </span>makefun<span style="font-weight: bold">(</span>question<span style="font-weight: bold">):
+            </span><span style="color: blue; font-weight: bold">return lambda </span>grades<span style="font-weight: bold">: </span>question<span style="font-weight: bold">.</span>execute<span style="font-weight: bold">(</span>grades<span style="font-weight: bold">)
+        </span>setattr<span style="font-weight: bold">(</span>sys<span style="font-weight: bold">.</span>modules<span style="font-weight: bold">[</span>__name__<span style="font-weight: bold">], </span>q<span style="font-weight: bold">, </span>makefun<span style="font-weight: bold">(</span>question<span style="font-weight: bold">))
+        </span>questions<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>q<span style="font-weight: bold">, </span>question<span style="font-weight: bold">.</span>getMaxPoints<span style="font-weight: bold">()))
+
+    </span>grades <span style="font-weight: bold">= </span>grading<span style="font-weight: bold">.</span>Grades<span style="font-weight: bold">(</span>projectParams<span style="font-weight: bold">.</span>PROJECT_NAME<span style="font-weight: bold">, </span>questions<span style="font-weight: bold">, </span>edxOutput<span style="font-weight: bold">=</span>edxOutput<span style="font-weight: bold">, </span>muteOutput<span style="font-weight: bold">=</span>muteOutput<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>questionToGrade <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span>questionDicts<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">for </span>prereq <span style="color: blue; font-weight: bold">in </span>questionDicts<span style="font-weight: bold">[</span>q<span style="font-weight: bold">].</span>get<span style="font-weight: bold">(</span><span style="color: red">'depends'</span><span style="font-weight: bold">, </span><span style="color: red">''</span><span style="font-weight: bold">).</span>split<span style="font-weight: bold">():
+                </span>grades<span style="font-weight: bold">.</span>addPrereq<span style="font-weight: bold">(</span>q<span style="font-weight: bold">, </span>prereq<span style="font-weight: bold">)
+
+    </span>grades<span style="font-weight: bold">.</span>grade<span style="font-weight: bold">(</span>sys<span style="font-weight: bold">.</span>modules<span style="font-weight: bold">[</span>__name__<span style="font-weight: bold">], </span>bonusPic <span style="font-weight: bold">= </span>projectParams<span style="font-weight: bold">.</span>BONUS_PIC<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>grades<span style="font-weight: bold">.</span>points
+
+
+
+<span style="color: blue; font-weight: bold">def </span>getDisplay<span style="font-weight: bold">(</span>graphicsByDefault<span style="font-weight: bold">, </span>options<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">):
+    </span>graphics <span style="font-weight: bold">= </span>graphicsByDefault
+    <span style="color: blue; font-weight: bold">if </span>options <span style="color: blue; font-weight: bold">is not </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">and </span>options<span style="font-weight: bold">.</span>noGraphics<span style="font-weight: bold">:
+        </span>graphics <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    if </span>graphics<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">import </span>graphicsDisplay
+            <span style="color: blue; font-weight: bold">return </span>graphicsDisplay<span style="font-weight: bold">.</span>PacmanGraphics<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">, </span>frameTime<span style="font-weight: bold">=.</span><span style="color: red">05</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">except </span>ImportError<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">pass
+    import </span>textDisplay
+    <span style="color: blue; font-weight: bold">return </span>textDisplay<span style="font-weight: bold">.</span>NullGraphics<span style="font-weight: bold">()
+
+
+
+
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+    </span>options <span style="font-weight: bold">= </span>readCommand<span style="font-weight: bold">(</span>sys<span style="font-weight: bold">.</span>argv<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>generateSolutions<span style="font-weight: bold">:
+        </span>confirmGenerate<span style="font-weight: bold">()
+    </span>codePaths <span style="font-weight: bold">= </span>options<span style="font-weight: bold">.</span>studentCode<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">','</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># moduleCodeDict = {}
+    # for cp in codePaths:
+    #     moduleName = re.match('.*?([^/]*)\.py', cp).group(1)
+    #     moduleCodeDict[moduleName] = readFile(cp, root=options.codeRoot)
+    # moduleCodeDict['projectTestClasses'] = readFile(options.testCaseCode, root=options.codeRoot)
+    # moduleDict = loadModuleDict(moduleCodeDict)
+
+    </span>moduleDict <span style="font-weight: bold">= {}
+    </span><span style="color: blue; font-weight: bold">for </span>cp <span style="color: blue; font-weight: bold">in </span>codePaths<span style="font-weight: bold">:
+        </span>moduleName <span style="font-weight: bold">= </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'.*?([^/]*)\.py'</span><span style="font-weight: bold">, </span>cp<span style="font-weight: bold">).</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+        </span>moduleDict<span style="font-weight: bold">[</span>moduleName<span style="font-weight: bold">] = </span>loadModuleFile<span style="font-weight: bold">(</span>moduleName<span style="font-weight: bold">, </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>codeRoot<span style="font-weight: bold">, </span>cp<span style="font-weight: bold">))
+    </span>moduleName <span style="font-weight: bold">= </span>re<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: red">'.*?([^/]*)\.py'</span><span style="font-weight: bold">, </span>options<span style="font-weight: bold">.</span>testCaseCode<span style="font-weight: bold">).</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">)
+    </span>moduleDict<span style="font-weight: bold">[</span><span style="color: red">'projectTestClasses'</span><span style="font-weight: bold">] = </span>loadModuleFile<span style="font-weight: bold">(</span>moduleName<span style="font-weight: bold">, </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>codeRoot<span style="font-weight: bold">, </span>options<span style="font-weight: bold">.</span>testCaseCode<span style="font-weight: bold">))
+
+
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>runTest <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>runTest<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>runTest<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">, </span>printTestCase<span style="font-weight: bold">=</span>options<span style="font-weight: bold">.</span>printTestCase<span style="font-weight: bold">, </span>display<span style="font-weight: bold">=</span>getDisplay<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">, </span>options<span style="font-weight: bold">))
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span>evaluate<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>generateSolutions<span style="font-weight: bold">, </span>options<span style="font-weight: bold">.</span>testRoot<span style="font-weight: bold">, </span>moduleDict<span style="font-weight: bold">,
+            </span>edxOutput<span style="font-weight: bold">=</span>options<span style="font-weight: bold">.</span>edxOutput<span style="font-weight: bold">, </span>muteOutput<span style="font-weight: bold">=</span>options<span style="font-weight: bold">.</span>muteOutput<span style="font-weight: bold">, </span>printTestCase<span style="font-weight: bold">=</span>options<span style="font-weight: bold">.</span>printTestCase<span style="font-weight: bold">,
+            </span>questionToGrade<span style="font-weight: bold">=</span>options<span style="font-weight: bold">.</span>gradeQuestion<span style="font-weight: bold">, </span>display<span style="font-weight: bold">=</span>getDisplay<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>gradeQuestion<span style="font-weight: bold">!=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>options<span style="font-weight: bold">))
+</span>
+  </pre>
+  </body>
+  </html>
+  

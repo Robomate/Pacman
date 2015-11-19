@@ -1,0 +1,12 @@
+class: "GradeClassifierTest"
+classifierModule: "linearLearning"
+classifierClass: "OneVsRestLinearClassifier"
+
+datasetName: "bigDigitData"
+
+max_iterations: "30"
+
+## Our Code: 86.6%
+accuracyScale: "1"
+exactOutput: "True"
+accuracyThresholds: "85"

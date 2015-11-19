@@ -1,0 +1,19 @@
+class: "UnitTest"
+success: "PASS"
+failure: "NO PASS"
+tolerance: "0.001"
+
+# Python code for the test below.
+preamble: """
+import linearLearning
+
+ans1 = linearLearning.der_sigmoid_dx(-.48)
+ans2 = linearLearning.der_sigmoid_dx(97)
+
+ans = sum([ans1, ans2])
+"""
+
+# A python expression to be evaluated. This expression must return the 
+# same result for the student and instructor's code (within tolerance)
+test: "ans"
+

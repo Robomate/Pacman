@@ -1,0 +1,88 @@
+<html>
+  <head>
+  <title>classificationAgents.py</title>
+  </head>
+  <body>
+  <h3>classificationAgents.py (<a href="../classificationAgents.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># classificationAgents.py
+# -----------------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# pacmanAgents.py
+# ---------------
+# Licensing Information:  You are free to use or extend these projects for 
+# educational purposes provided that (1) you do not distribute or publish 
+# solutions, (2) you retain this notice, and (3) you provide clear 
+# attribution to UC Berkeley, including a link to 
+# http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero 
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and 
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+</span><span style="color: blue; font-weight: bold">from </span>pacman <span style="color: blue; font-weight: bold">import </span>Directions
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Agent
+
+<span style="color: blue; font-weight: bold">import </span>random
+<span style="color: blue; font-weight: bold">import </span>game
+<span style="color: blue; font-weight: bold">import </span>util
+
+<span style="color: blue; font-weight: bold">class </span>DummyOptions<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data <span style="font-weight: bold">= </span><span style="color: red">"pacman"
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>training <span style="font-weight: bold">= </span><span style="color: red">25000
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>test <span style="font-weight: bold">= </span><span style="color: red">100
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>odds <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>weights <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+
+
+import </span>perceptron_pacman
+
+<span style="color: blue; font-weight: bold">class </span>ClassifierAgent<span style="font-weight: bold">(</span>Agent<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>trainingData<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>validationData<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>classifierType<span style="font-weight: bold">=</span><span style="color: red">"perceptron"</span><span style="font-weight: bold">, </span>agentToClone<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">, </span>numTraining<span style="font-weight: bold">=</span><span style="color: red">3</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">from </span>dataClassifier <span style="color: blue; font-weight: bold">import </span>runClassifier<span style="font-weight: bold">, </span>enhancedFeatureExtractorPacman
+        legalLabels <span style="font-weight: bold">= [</span><span style="color: red">'Stop'</span><span style="font-weight: bold">, </span><span style="color: red">'West'</span><span style="font-weight: bold">, </span><span style="color: red">'East'</span><span style="font-weight: bold">, </span><span style="color: red">'North'</span><span style="font-weight: bold">, </span><span style="color: red">'South'</span><span style="font-weight: bold">]
+        </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span>classifierType <span style="font-weight: bold">== </span><span style="color: red">"perceptron"</span><span style="font-weight: bold">):
+            </span>classifier <span style="font-weight: bold">= </span>perceptron_pacman<span style="font-weight: bold">.</span>PerceptronClassifierPacman<span style="font-weight: bold">(</span>legalLabels<span style="font-weight: bold">,</span>numTraining<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifier <span style="font-weight: bold">= </span>classifier
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>featureFunction <span style="font-weight: bold">= </span>enhancedFeatureExtractorPacman
+        args <span style="font-weight: bold">= {</span><span style="color: red">'featureFunction'</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>featureFunction<span style="font-weight: bold">,
+                </span><span style="color: red">'classifier'</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifier<span style="font-weight: bold">,
+                </span><span style="color: red">'printImage'</span><span style="font-weight: bold">:</span><span style="color: blue">None</span><span style="font-weight: bold">,
+                </span><span style="color: red">'trainingData'</span><span style="font-weight: bold">:</span>trainingData<span style="font-weight: bold">,
+                </span><span style="color: red">'validationData'</span><span style="font-weight: bold">:</span>validationData<span style="font-weight: bold">,
+                </span><span style="color: red">'agentToClone'</span><span style="font-weight: bold">: </span>agentToClone<span style="font-weight: bold">,
+        }
+        </span>options <span style="font-weight: bold">= </span>DummyOptions<span style="font-weight: bold">()
+        </span>options<span style="font-weight: bold">.</span>classifier <span style="font-weight: bold">= </span>classifierType
+        runClassifier<span style="font-weight: bold">(</span>args<span style="font-weight: bold">, </span>options<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">from </span>dataClassifier <span style="color: blue; font-weight: bold">import </span>runClassifier<span style="font-weight: bold">, </span>enhancedFeatureExtractorPacman
+        features <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>featureFunction<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)
+        
+        </span>action <span style="font-weight: bold">=  </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>classifier<span style="font-weight: bold">.</span>classify<span style="font-weight: bold">([</span>features<span style="font-weight: bold">])[</span><span style="color: red">0</span><span style="font-weight: bold">]
+
+        </span><span style="color: blue; font-weight: bold">return </span>action
+
+<span style="color: blue; font-weight: bold">def </span>scoreEvaluation<span style="font-weight: bold">(</span>state<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span>state<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">()
+</span>
+  </pre>
+  </body>
+  </html>
+  

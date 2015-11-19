@@ -1,0 +1,241 @@
+<html>
+  <head>
+  <title>dataRegression.py</title>
+  </head>
+  <body>
+  <h3>dataRegression.py (<a href="../dataRegression.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># dataRegression.py
+# -----------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# dataRegression.py
+# -----------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+# This file contains feature extraction methods and harness
+# code for data classification
+
+</span><span style="color: blue; font-weight: bold">import </span>sys
+<span style="color: blue; font-weight: bold">import </span>numpy as np
+<span style="color: blue; font-weight: bold">import </span>plotUtil
+<span style="color: blue; font-weight: bold">import </span>pacmanPlot
+<span style="color: blue; font-weight: bold">import </span>graphicsUtils
+<span style="color: blue; font-weight: bold">import </span>linearLearning
+
+TEST_SET_SIZE <span style="font-weight: bold">= </span><span style="color: red">20
+
+
+</span><span style="color: green; font-style: italic"># def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage):
+    # """
+    # This function is called after learning.
+    # Include any code that you want here to help you analyze your results.
+
+    # Use the printImage(&lt;list of pixels&gt;) function to visualize features.
+
+    # An example of use has been given to you.
+
+    # - classifier is the trained classifier
+    # - guesses is the list of labels predicted by your classifier on the test set
+    # - testLabels is the list of true labels
+    # - testData is the list of training datapoints (as util.Counter of features)
+    # - rawTestData is the list of training datapoints (as samples.Datum)
+    # - printImage is a method to visualize the features
+    # (see its use in the odds ratio part in runClassifier method)
+
+    # This code won't be evaluated. It is for your own optional use
+    # (and you can modify the signature if you want).
+    # """
+
+    # # Put any code here...
+    # # Example of use:
+    # # for i in range(len(guesses)):
+    # #     prediction = guesses[i]
+    # #     truth = testLabels[i]
+    # #     if (prediction != truth):
+    # #         print "==================================="
+    # #         print "Mistake on example %d" % i
+    # #         print "Predicted %d; truth is %d" % (prediction, truth)
+    # #         print "Image: "
+    # #         print rawTestData[i]
+    # #         break
+
+
+## =====================
+## You don't have to modify any code below.
+## =====================
+
+
+</span><span style="color: blue; font-weight: bold">def </span>default<span style="font-weight: bold">(</span>str<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span>str <span style="font-weight: bold">+ </span><span style="color: red">' [Default: %default]'
+
+</span>USAGE_STRING <span style="font-weight: bold">= </span><span style="color: darkred">"""
+  USAGE:      python dataRegression.py &lt;options&gt;
+  EXAMPLES:   (1) python dataRegression.py
+                  - trains the least-square regressor on the simple data set,
+                  which is randomly sampled from the linear Gaussian Model:
+                  y = ax + b + G(m, var)
+                  using the default 100 training examples and then test the
+                  regressor on test data
+                  The default training method is the analytical solution.
+              (2) python dataRegression.py -d BerkleyHousing -p -t 200 -m gradient -i 30
+                  -would run the least-square regressor on the Berkeley housing
+                  data set, with the stochastic gradient decent method. It will
+                  also print the regression result and errors during the training.
+                 """
+
+
+</span><span style="color: blue; font-weight: bold">def </span>readCommand<span style="font-weight: bold">( </span>argv <span style="font-weight: bold">):
+    </span><span style="color: red">"Processes the command used to run from the command line."
+    </span><span style="color: blue; font-weight: bold">from </span>optparse <span style="color: blue; font-weight: bold">import </span>OptionParser
+    parser <span style="font-weight: bold">= </span>OptionParser<span style="font-weight: bold">(</span>USAGE_STRING<span style="font-weight: bold">)
+
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-d'</span><span style="font-weight: bold">, </span><span style="color: red">'--data'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Dataset to use'</span><span style="font-weight: bold">), </span>choices<span style="font-weight: bold">=[</span><span style="color: red">'simple6'</span><span style="font-weight: bold">,</span><span style="color: red">'simple15'</span><span style="font-weight: bold">, </span><span style="color: red">'simple1000'</span><span style="font-weight: bold">, </span><span style="color: red">'BerkeleyHousing'</span><span style="font-weight: bold">], </span>default<span style="font-weight: bold">=</span><span style="color: red">'simple6'</span><span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># parser.add_option('-t', '--training', help=default('The size of the training set'), default=100, type="int")
+    # parser.add_option('-v', '--validation', help=default('The size of the validation set'), default=100, type="int")
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-m'</span><span style="font-weight: bold">, </span><span style="color: red">'--method'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Analytical method or gradient method'</span><span style="font-weight: bold">), </span>choices<span style="font-weight: bold">=[</span><span style="color: red">'analytical'</span><span style="font-weight: bold">, </span><span style="color: red">'gradient'</span><span style="font-weight: bold">], </span>default<span style="font-weight: bold">=</span><span style="color: red">'analytical'</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-p'</span><span style="font-weight: bold">, </span><span style="color: red">'--Print'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Print the data and weights or not'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">"store_true"</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-g'</span><span style="font-weight: bold">, </span><span style="color: red">'--ghosts'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Plot ghosts as points'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">"store_true"</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-i'</span><span style="font-weight: bold">, </span><span style="color: red">'--iterations'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">"Maximum iterations to run training"</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">30</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">"int"</span><span style="font-weight: bold">)
+    </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-s'</span><span style="font-weight: bold">, </span><span style="color: red">'--test'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">"Amount of test data to use"</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span>TEST_SET_SIZE<span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">"int"</span><span style="font-weight: bold">)
+
+    </span>options<span style="font-weight: bold">, </span>otherjunk <span style="font-weight: bold">= </span>parser<span style="font-weight: bold">.</span>parse_args<span style="font-weight: bold">(</span>argv<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>otherjunk<span style="font-weight: bold">) != </span><span style="color: red">0</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">'Command line input not understood: ' </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>otherjunk<span style="font-weight: bold">))
+    </span>args <span style="font-weight: bold">= {}
+
+    </span><span style="color: green; font-style: italic"># Set up variables according to the command line input.
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Doing Regression"
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"--------------------"
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"data:\t\t" </span><span style="font-weight: bold">+ </span>options<span style="font-weight: bold">.</span>data
+    <span style="color: blue; font-weight: bold">print </span><span style="color: red">"Regressor:\t\t" </span><span style="font-weight: bold">+ </span><span style="color: red">"LinearRegression"
+    </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>data<span style="font-weight: bold">!=</span><span style="color: red">"simple6" </span><span style="color: blue; font-weight: bold">and </span>options<span style="font-weight: bold">.</span>data<span style="font-weight: bold">!=</span><span style="color: red">"simple15" </span><span style="color: blue; font-weight: bold">and </span>options<span style="font-weight: bold">.</span>data<span style="font-weight: bold">!=</span><span style="color: red">"simple1000" </span><span style="color: blue; font-weight: bold">and </span>options<span style="font-weight: bold">.</span>data<span style="font-weight: bold">!=</span><span style="color: red">"BerkeleyHousing"</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Unknown dataset"</span><span style="font-weight: bold">, </span>options<span style="font-weight: bold">.</span>data
+        <span style="color: blue; font-weight: bold">print </span>USAGE_STRING
+        sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+
+    </span>data <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>load<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>data <span style="font-weight: bold">+ </span><span style="color: red">".npz"</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"training set size:\t" </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>data<span style="font-weight: bold">[</span><span style="color: red">"data"</span><span style="font-weight: bold">]))
+
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>method<span style="font-weight: bold">!=</span><span style="color: red">"analytical" </span><span style="color: blue; font-weight: bold">and </span>options<span style="font-weight: bold">.</span>method<span style="font-weight: bold">!=</span><span style="color: red">"gradient"</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Illegal training method"
+        </span><span style="color: blue; font-weight: bold">print </span>USAGE_STRING
+        sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)
+
+    </span>regressor <span style="font-weight: bold">= </span>linearLearning<span style="font-weight: bold">.</span>LinearRegression<span style="font-weight: bold">()
+    </span>args<span style="font-weight: bold">[</span><span style="color: red">'regressor'</span><span style="font-weight: bold">] = </span>regressor
+
+    <span style="color: blue; font-weight: bold">return </span>args<span style="font-weight: bold">, </span>options
+
+<span style="color: green; font-style: italic"># Main harness code
+
+</span><span style="color: blue; font-weight: bold">def </span>runRegressor<span style="font-weight: bold">(</span>args<span style="font-weight: bold">, </span>options<span style="font-weight: bold">):
+    </span>regressor <span style="font-weight: bold">= </span>args<span style="font-weight: bold">[</span><span style="color: red">'regressor'</span><span style="font-weight: bold">]
+
+    </span><span style="color: green; font-style: italic"># Load data
+    </span>numIter <span style="font-weight: bold">= </span>options<span style="font-weight: bold">.</span>iterations
+
+    <span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>data<span style="font-weight: bold">!=</span><span style="color: red">"BerkeleyHousing"</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Loading simple dataset: " </span><span style="font-weight: bold">+ </span>options<span style="font-weight: bold">.</span>data <span style="font-weight: bold">+ </span><span style="color: red">" ..."
+        </span>data <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>load<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>data <span style="font-weight: bold">+ </span><span style="color: red">".npz"</span><span style="font-weight: bold">)
+        </span>regressor<span style="font-weight: bold">.</span>setLearningRate<span style="font-weight: bold">(</span><span style="color: red">0.01</span><span style="font-weight: bold">)
+        </span>trainingData <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"data"</span><span style="font-weight: bold">]
+        </span>trainingRegressionResult <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"regressionResults"</span><span style="font-weight: bold">]
+        </span>validationData <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"dataVali"</span><span style="font-weight: bold">]
+        </span>validationRegressionResult <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"regressionResultsVali"</span><span style="font-weight: bold">]
+        </span>testingData <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"dataTest"</span><span style="font-weight: bold">]
+        </span>testingRegressionResult <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"regressionResultsTest"</span><span style="font-weight: bold">]
+        </span>paras <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"paras"</span><span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Loading Berkeley housing dataset ..."
+        </span>regressor<span style="font-weight: bold">.</span>setLearningRate<span style="font-weight: bold">(</span><span style="color: red">0.00000001</span><span style="font-weight: bold">)
+        </span>data <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>load<span style="font-weight: bold">(</span><span style="color: red">"BerkeleyHousing.npz"</span><span style="font-weight: bold">)
+        </span><span style="color: green; font-style: italic"># dataTest = np.load("berkeleyHousingTest.npz")
+        </span>trainingData <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"data"</span><span style="font-weight: bold">]
+        </span>trainingRegressionResult <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"regressionResults"</span><span style="font-weight: bold">]
+        </span>validationData <span style="font-weight: bold">= []
+        </span>validationRegressionResult <span style="font-weight: bold">= []
+        </span>testingData <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"dataTest"</span><span style="font-weight: bold">]
+        </span>testingRegressionResult <span style="font-weight: bold">= </span>data<span style="font-weight: bold">[</span><span style="color: red">"regressionResults"</span><span style="font-weight: bold">]
+
+    </span><span style="color: green; font-style: italic"># Append 1 to all data points to allow for a bias offset (and convert to Nx2 matrix)
+    </span>trainingData <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>hstack<span style="font-weight: bold">((</span>trainingData<span style="font-weight: bold">[:,</span><span style="color: blue">None</span><span style="font-weight: bold">], </span>np<span style="font-weight: bold">.</span>ones<span style="font-weight: bold">( (</span>trainingData<span style="font-weight: bold">.</span>size<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">) )))
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>data<span style="font-weight: bold">!=</span><span style="color: red">"BerkeleyHousing"</span><span style="font-weight: bold">:
+        </span>validationData <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>hstack<span style="font-weight: bold">((</span>validationData<span style="font-weight: bold">[:,</span><span style="color: blue">None</span><span style="font-weight: bold">], </span>np<span style="font-weight: bold">.</span>ones<span style="font-weight: bold">( (</span>validationData<span style="font-weight: bold">.</span>size<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">) )))
+    </span>testingData <span style="font-weight: bold">= </span>np<span style="font-weight: bold">.</span>hstack<span style="font-weight: bold">((</span>testingData<span style="font-weight: bold">[:,</span><span style="color: blue">None</span><span style="font-weight: bold">], </span>np<span style="font-weight: bold">.</span>ones<span style="font-weight: bold">( (</span>testingData<span style="font-weight: bold">.</span>size<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">) )))
+
+    </span><span style="color: green; font-style: italic"># Conduct training and testing
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Training..."
+    </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>method <span style="font-weight: bold">== </span><span style="color: red">"analytical"</span><span style="font-weight: bold">):
+        </span>regressor<span style="font-weight: bold">.</span>trainAnalytical<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingRegressionResult<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span>regressor<span style="font-weight: bold">.</span>trainGradient<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingRegressionResult<span style="font-weight: bold">, </span>numIter<span style="font-weight: bold">, </span>options<span style="font-weight: bold">.</span>Print<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>Print<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>ghosts<span style="font-weight: bold">:
+            </span>pacmanDisplay <span style="font-weight: bold">= </span>pacmanPlot<span style="font-weight: bold">.</span>PacmanPlotRegression<span style="font-weight: bold">()</span>;
+            pacmanDisplay<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">, </span>trainingRegressionResult<span style="font-weight: bold">, </span>regressor<span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Training: Linear Regression'</span><span style="font-weight: bold">)
+            </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">3</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>plotUtil<span style="font-weight: bold">.</span>plotRegression<span style="font-weight: bold">(</span>trainingData<span style="font-weight: bold">,</span>trainingRegressionResult<span style="font-weight: bold">, </span>regressor<span style="font-weight: bold">.</span>weights<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">,</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">,</span><span style="color: red">'Training: Linear Regression'</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>validationData<span style="font-weight: bold">) &gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Validating..."
+        </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>Print<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>ghosts<span style="font-weight: bold">:
+                </span>pacmanDisplay <span style="font-weight: bold">= </span>pacmanPlot<span style="font-weight: bold">.</span>PacmanPlotRegression<span style="font-weight: bold">()</span>;
+                pacmanDisplay<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>validationData<span style="font-weight: bold">, </span>validationRegressionResult<span style="font-weight: bold">, </span>regressor<span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Validating: Linear Regression'</span><span style="font-weight: bold">)
+                </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">3</span><span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                </span>plotUtil<span style="font-weight: bold">.</span>plotRegression<span style="font-weight: bold">(</span>validationData<span style="font-weight: bold">,</span>validationRegressionResult<span style="font-weight: bold">, </span>regressor<span style="font-weight: bold">.</span>weights<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">,</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span><span style="color: red">'Validating: Linear Regression'</span><span style="font-weight: bold">)
+        </span>validationLoss <span style="font-weight: bold">= </span>regressor<span style="font-weight: bold">.</span>regressionLoss<span style="font-weight: bold">(</span>validationData<span style="font-weight: bold">, </span>validationRegressionResult<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Validation loss: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>validationLoss<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"No validation data provided"
+
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Testing..."
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>Print<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>ghosts<span style="font-weight: bold">:
+            </span>pacmanDisplay <span style="font-weight: bold">= </span>pacmanPlot<span style="font-weight: bold">.</span>PacmanPlotRegression<span style="font-weight: bold">()</span>;
+            pacmanDisplay<span style="font-weight: bold">.</span>plot<span style="font-weight: bold">(</span>testingData<span style="font-weight: bold">, </span>testingRegressionResult<span style="font-weight: bold">, </span>regressor<span style="font-weight: bold">.</span>weights<span style="font-weight: bold">, </span>title<span style="font-weight: bold">=</span><span style="color: red">'Testing: Linear Regression'</span><span style="font-weight: bold">)
+            </span>graphicsUtils<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">3</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>plotUtil<span style="font-weight: bold">.</span>plotRegression<span style="font-weight: bold">(</span>testingData<span style="font-weight: bold">, </span>testingRegressionResult<span style="font-weight: bold">, </span>regressor<span style="font-weight: bold">.</span>weights<span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">,</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span><span style="color: red">'Testing: Linear Regression'</span><span style="font-weight: bold">)
+
+    </span>testingLoss <span style="font-weight: bold">= </span>regressor<span style="font-weight: bold">.</span>regressionLoss<span style="font-weight: bold">(</span>testingData<span style="font-weight: bold">, </span>testingRegressionResult<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Testing loss: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>testingLoss<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>Print<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>ghosts<span style="font-weight: bold">:
+</span><span style="color: green; font-style: italic">#             pacmanDisplay.takeControl()
+            </span>graphicsUtils<span style="font-weight: bold">.</span>end_graphics<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+    </span><span style="color: green; font-style: italic"># Read input
+    </span>args<span style="font-weight: bold">, </span>options <span style="font-weight: bold">= </span>readCommand<span style="font-weight: bold">( </span>sys<span style="font-weight: bold">.</span>argv<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:] )
+    </span><span style="color: green; font-style: italic"># Run classifier
+    </span>runRegressor<span style="font-weight: bold">(</span>args<span style="font-weight: bold">, </span>options<span style="font-weight: bold">)
+</span>
+  </pre>
+  </body>
+  </html>
+  
