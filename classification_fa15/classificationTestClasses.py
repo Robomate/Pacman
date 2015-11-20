@@ -575,7 +575,7 @@ class UnitTest(testClasses.TestCase):
         self.test = compile(testDict['test'], "%s.test" % self.getPath(), 'eval')
         self.success = testDict['success']
         self.failure = testDict['failure']
-        self.tolerance = testDict['tolerance']
+        self.tolerance = float(testDict['tolerance'])
         self.partialPoints = 0
         if "partialPoints" in testDict.keys():
             self.partialPoints = int(testDict["partialPoints"])
