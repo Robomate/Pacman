@@ -14,19 +14,19 @@ regression.weights[0] = 1
 regression.weights[1] = 1
 x = np.array([1, 2])
 y = 3
-ans1 = regression.loss(x, y)
+ans1 = regression.der_loss_dw(x, y, regression.weights)
 
 regression.weights[0] = 2
 regression.weights[1] = 2
 x = np.array([1.7, 2.1])
 y = 5
-ans2 = regression.loss(x, y)
+ans2 = regression.der_loss_dw(x, y, regression.weights)
 
 regression.weights[0] = 1.84
 regression.weights[1] = 0.92
 x = np.array([4.83, 1])
 y = 10
-ans3 = regression.loss(x, y)
+ans3 = regression.der_loss_dw(x, y, regression.weights)
 
 ans = sum([ans1, ans2, ans3])
 """

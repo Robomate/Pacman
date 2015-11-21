@@ -73,7 +73,8 @@ def stochasticGradientDescentUpdate(datum, label, weights, alpha, der_loss_dw):
     Implement the weight update equation for general stochastic gradient descent,
     given a single data point, datum, and its label and a function for the derivative 
     of the loss function with respect to the weights.
-    Returns the updated weights.
+    Returns the updated weights. Return a new array updatedWeights. Do not modify the 
+    input weights.
     
     datum: input data point
     label: true label for data point
@@ -88,7 +89,7 @@ def stochasticGradientDescentUpdate(datum, label, weights, alpha, der_loss_dw):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
     
-    return weights
+    return updatedWeights
 
 def sigmoid(x):
     """
