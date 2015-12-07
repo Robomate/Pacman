@@ -38,7 +38,7 @@ def quadLoss(x, y):
     with quadratic loss functions)    
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return (y - x) ** 2
 
 def der_quadLoss_dx(x, y):
     """
@@ -51,7 +51,7 @@ def der_quadLoss_dx(x, y):
     with quadratic loss functions)
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return 2 * (x - y)
 
 def der_dot_dw(x, weights):
     """
@@ -64,7 +64,7 @@ def der_dot_dw(x, weights):
     Hint: You may not need all of the input arguments.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return x
 
 def stochasticGradientDescentUpdate(datum, label, weights, alpha, der_loss_dw):
     """
@@ -87,8 +87,8 @@ def stochasticGradientDescentUpdate(datum, label, weights, alpha, der_loss_dw):
     [der_loss_dw1, der_loss_dw2, ...]
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-    
+    updatedWeights = np.array(weights)
+    updatedWeights -= alpha * der_loss_dw(datum, label, weights)
     return updatedWeights
 
 def sigmoid(x):
@@ -103,7 +103,7 @@ def sigmoid(x):
     products with weights involved.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return 1.0 / (1.0 + math.exp(-x))
 
 def der_sigmoid_dx(x):
     """
@@ -118,7 +118,7 @@ def der_sigmoid_dx(x):
     advantage of the sigmoid function you already implemented.  
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return (sigmoid(x) ** 2) * math.exp(-x)
 
 def softmax(x):
     """
@@ -138,7 +138,8 @@ def softmax(x):
     products with weights involved.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    expSum = np.sum(np.exp(x))
+    return np.array([np.exp(xi) / expSum for xi in x])
 
 def der_softmax_dx(x, i, j):
     """
@@ -226,9 +227,7 @@ class LinearRegression:
         """
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
-        self.weights = weights
+        self.weights = np.dot(np.dot(np.linalg.inv(np.dot(trainingData_x.T, trainingData_x)), trainingData_x.T), trainingData_y)
 
     def trainGradient(self, trainingData, regressionData, numIterations, showPlot=True, showPacmanPlot=True):
         print 'Training with gradient ...'
@@ -290,7 +289,7 @@ class LinearRegression:
         x is an array of the same length as self.weights (both include the bias term)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return np.dot(x, self.weights)
         
     def regressionLoss(self, x_data, y_data):
         """
@@ -310,7 +309,7 @@ class LinearRegression:
         Returns a single float value for the loss
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return quadLoss(y_true, self.hypothesis(x))
         
     def der_loss_dw(self, x, y_true, weights):
         """
@@ -322,7 +321,7 @@ class LinearRegression:
         [der_loss_dw1, der_loss_dw2, ...]
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return der_quadLoss_dx(self.hypothesis(x), y_true) * der_dot_dw(x, weights)
 
 class BinaryLinearClassifier:
     """
@@ -423,7 +422,7 @@ class BinaryLinearClassifier:
         has already been included in both x and self.weights.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return sigmoid(np.dot(x, self.weights))
 
     def classificationLoss(self, x_data, y_data):
         """
@@ -443,7 +442,7 @@ class BinaryLinearClassifier:
         Returns a single float value for the loss
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return quadLoss(y_true, self.hypothesis(x))
 
     def der_loss_dw(self, x, y_true, weights):
         """
@@ -463,7 +462,7 @@ class BinaryLinearClassifier:
         what value would you need to pass as input to that function?
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return der_quadLoss_dx(self.hypothesis(x), y_true) * der_sigmoid_dx(np.dot(x, self.weights)) * der_dot_dw(x, weights)
 
 class MulticlassLinearClassifier:
     """
@@ -547,7 +546,7 @@ class MulticlassLinearClassifier:
         numClasses = len(self.legalLabels)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return softmax([np.dot(x, w) for w in self.weights])
 
     def classificationLoss(self, x_data, y_data):
         """

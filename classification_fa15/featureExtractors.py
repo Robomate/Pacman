@@ -118,6 +118,6 @@ class EnhancedExtractor(FeatureExtractor):
         features["bias"] = 1.0
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        SimpleExtractor.getFeatures(state, action)
                 
         return features

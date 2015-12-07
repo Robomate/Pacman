@@ -76,16 +76,42 @@ def enhancedFeatureExtractorDigit(datum):
 
     ## DESCRIBE YOUR ENHANCED FEATURES HERE...
 
+    1. number of cycles' pixels
+    2. number of diagonal region pixels and central herizontal and vertical region pixels
+
     ##
     """
     features =  basicFeatureExtractorDigit(datum)
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print(datum.getAsciiString())
+
+    def dfs(x, y):
+        if x < 0 or x >= DIGIT_DATUM_WIDTH or y < 0 or y >= DIGIT_DATUM_HEIGHT:
+            return False 
+        if datum.getPixel(x, y) or (x, y) in visited.keys():
+            return True
+        visited[(x, y)] = True
+        if dfs(x - 1, y) and dfs(x + 1, y) and dfs(x, y - 1) and dfs(x, y + 1):
+            return 1
+        return 0
+ 
+    for x in range(DIGIT_DATUM_WIDTH):
+        for y in range(DIGIT_DATUM_HEIGHT):
+            visited = {}
+            if not datum.getPixel(x, y):
+                features[(DIGIT_DATUM_WIDTH - 1) * (DIGIT_DATUM_HEIGHT - 1) + 1] += dfs(x, y)
+            else:
+                if x - 8 <= y <= x + 8:
+                    features[0] += 1
+                if DIGIT_DATUM_HEIGHT - 8 - x <= y <= DIGIT_DATUM_HEIGHT + 7 - x:
+                    features[1] += 1
+                if DIGIT_DATUM_HEIGHT // 2 - 5 <= y <= DIGIT_DATUM_HEIGHT // 2 + 5:
+                    features[2] += 1
+                if DIGIT_DATUM_WIDTH // 2 - 5 <= x <= DIGIT_DATUM_WIDTH // 2 + 5:
+                    features[3] += 1
 
     return features
-
-
 
 def basicFeatureExtractorPacman(state):
     """
@@ -171,16 +197,16 @@ def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage)
 
     # Put any code here...
     # Example of use:
-    # for i in range(len(guesses)):
-    #     prediction = guesses[i]
-    #     truth = testLabels[i]
-    #     if (prediction != truth):
-    #         print "==================================="
-    #         print "Mistake on example %d" % i
-    #         print "Predicted %d; truth is %d" % (prediction, truth)
-    #         print "Image: "
-    #         print rawTestData[i]
-    #         break
+    for i in range(len(guesses)):
+        prediction = guesses[i]
+        truth = testLabels[i]
+        if (prediction != truth):
+            print "==================================="
+            print "Mistake on example %d" % i
+            print "Predicted %d; truth is %d" % (prediction, truth)
+            print "Image: "
+            print rawTestData[i]
+            break
 
 
 ## =====================
